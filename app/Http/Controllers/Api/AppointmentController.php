@@ -7,6 +7,7 @@ use App\Models\Appointment;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use App\Models\Customer;
 
 class AppointmentController extends Controller
 {
@@ -18,7 +19,7 @@ class AppointmentController extends Controller
     public function index()
     {
         return AppointmentResource::collection(
-            Appointment::query()->orderBy('time', 'desc')->paginate(10)
+            Appointment::with('customers')->orderBy('time', 'desc')->paginate(10)
         );
     }
 
@@ -30,9 +31,27 @@ class AppointmentController extends Controller
      */
     public function store(StoreAppointmentRequest $request)
     {
-        $data = $request->validated();
-        $appointment = Appointment::query()->create($data);
-        return response (new AppointmentResource($appointment), status:201);
+        $validated = $request->validate([
+            'information' => 'required|string|max:255',
+            'time' => 'required|date_format:d-m-Y H:i',
+            'type' => 'required|string',
+            'customer_name' => 'required|string|max:255',
+            'customer_phone' => 'required|string|max:20',
+        ]);
+
+        // Create or find the customer
+        $customer = Customer::firstOrCreate(
+            ['phone' => $validated['customer_phone']],
+            ['name' => $validated['customer_name']]
+        );
+
+        // Create the appointment
+        $appointment = Appointment::create($validated);
+
+        // Attach the customer to the appointment
+        $appointment->customers()->attach($customer->id);
+
+        return new AppointmentResource($appointment);
     }
 
     /**
@@ -43,7 +62,7 @@ class AppointmentController extends Controller
      */
     public function show(Appointment $appointment)
     {
-        return new AppointmentResource($appointment);
+        return new AppointmentResource($appointment->load('customers'));
     }
 
     /**
@@ -56,7 +75,7 @@ class AppointmentController extends Controller
     public function update(UpdateAppointmentRequest $request, Appointment $appointment)
     {
         $data = $request->validated();
-        $appointment->update($data);
+        $appointment->load('customers')->update($data);
 
         return new AppointmentResource($appointment);
     }
