@@ -17,7 +17,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name');
-            $table->string('phone_number', 20);
+            $table->string('phone', 20);
             $table->string('instagram')->nullable();
             $table->enum('status', ['active', 'inactive'])->nullable();
         });
