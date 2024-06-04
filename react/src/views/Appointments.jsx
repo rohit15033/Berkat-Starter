@@ -40,12 +40,6 @@ export default function Appointments() {
     setCurrentPage(1);
   };
 
-
-  const handleTypeFilter = () => {
-    setCurrentPage(1);
-    getAppointments();
-  };
-
   const debouncedGetAppointments = useCallback(
     debounce((page, query, type) => {
       setLoading(true);
@@ -77,12 +71,13 @@ export default function Appointments() {
         <Link to="/appointments/new" className="btn-add">Add New Appointment</Link>
       </div>
       <div style={{display: 'flex', justifyContent: "space-between", alignItems: "center"}}>
-        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleTypeFilter}/>
+        {currentPage === 1 && <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />}
         <select onChange={handelTypeFilterChange} value={typeFilter}>
           <option value="">All</option>
           <option value="new_customer">New Customer</option>
           <option value="fitting">fitting</option>
           <option value="last_fitting">Last Fitting</option>
+
         </select>
       </div>
       <div className="card animated fadeInDown">

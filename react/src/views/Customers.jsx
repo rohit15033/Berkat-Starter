@@ -74,8 +74,10 @@ export default function Customers() {
         <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
         <select onChange={handleStatusFilterChange} value={statusFilter}>
           <option value="">All</option>
-          <option value="active">Active</option>
-          <option value="inactive">Inactive</option>
+          <option value="chat">Chat</option>
+          <option value="visit">Visit</option>
+          <option value="dealing">Dealing</option>
+          <option value="reschedule">Reschedule</option>
         </select>
       </div>
       <div className="card animated fadeInDown">

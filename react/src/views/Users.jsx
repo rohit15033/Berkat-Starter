@@ -51,7 +51,7 @@ export default function Users() {
 
   useEffect(() => {
     debouncedGetUsers(currentPage, searchQuery);
-  }, [currentPage, searchQuery, debouncedGetUsers]);
+  }, [currentPage, searchQuery]);
 
   return (
     <div>
@@ -59,7 +59,8 @@ export default function Users() {
         <h1>Users</h1>
         <Link className="btn-add" to="/users/new">Add new</Link>
       </div>
-      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+      {currentPage === 1 && <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />}
+
       <div className="card animated fadeInDown">
         <table>
           <thead>

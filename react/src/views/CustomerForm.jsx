@@ -96,13 +96,15 @@ export default function CustomerForm() {
             />
             <select
               value={customer.status || "inactive"}
-              onChange={ev => setCustomer({ ...customer, status: ev.target.value })}
+              onChange={ev => setCustomer({...customer, status: ev.target.value})}
               placeholder="Customer Status"
               className="select-input"
             >
-              <option value="">Select Status</option>
-              <option value="active">Active</option>
-              <option value="inactive">Inactive</option>
+              <option value="">All</option>
+              <option value="Chat">Chat</option>
+              <option value="Visit">Visit</option>
+              <option value="Dealing">Dealing</option>
+              <option value="Reschedule">Reschedule</option>
             </select>
             <button className="btn">Save</button>
           </form>

@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('phone', 20); // fixed typo
             $table->string('instagram')->nullable();
-            $table->string('status')->nullable();
+            $table->string('status')->nullable()->default('chat');
         });
     }
 
