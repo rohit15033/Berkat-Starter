@@ -38,7 +38,7 @@ export default function AppointmentForm() {
           }
         });
     } else {
-      axiosClient.post(`/appointments`, formattedAppointment)
+      axiosClient.post(`/appointments/`, formattedAppointment)
         .then(() => {
           setNotification("Appointment has been created successfully");
           navigate('/appointments');
