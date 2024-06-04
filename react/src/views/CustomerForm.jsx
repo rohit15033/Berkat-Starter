@@ -33,25 +33,37 @@ export default function CustomerForm() {
 
   const onSubmit = ev => {
     ev.preventDefault();
-    const method = customer.id ? 'put' : 'post';
-    const url = customer.id ? `/customers/${customer.id}` : '/customers';
 
-    axiosClient[method](url, customer)
-      .then(() => {
-        setNotification(customer.id ? 'Customer was successfully updated' : 'Customer was successfully created');
-        navigate('/customers');
-      })
-      .catch(err => {
-        const response = err.response;
-        if (response && response.status === 422) {
-          setErrors(response.data.errors);
-        }
-      });
+    if (customer.id) {
+      axiosClient.put(`/customers/${customer.id}`, customer)
+        .then(() => {
+          setNotification("Customer has been updated successfully");
+          navigate('/customers');
+        })
+        .catch(err => {
+          const response = err.response;
+          if (response && response.status === 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    } else {
+      axiosClient.post(`/customers`, customer)
+        .then(() => {
+          setNotification("Customer has been created successfully");
+          navigate('/customers');
+        })
+        .catch(err => {
+          const response = err.response;
+          if (response && response.status === 422) {
+            setErrors(response.data.errors);
+          }
+        });
+    }
   };
 
   return (
     <>
-      {customer.id ? <h1>Update User: {customer.name}</h1> : <h1>New User</h1>}
+      {customer.id ? <h1>Update Customer: {customer.name}</h1> : <h1>New Customer</h1>}
       <div className="card animated fadeInDown">
         {loading && (
           <div className="text-center">
@@ -83,7 +95,7 @@ export default function CustomerForm() {
               placeholder="Instagram"
             />
             <select
-              value={customer.status || ""}
+              value={customer.status || "inactive"}
               onChange={ev => setCustomer({ ...customer, status: ev.target.value })}
               placeholder="Customer Status"
               className="select-input"

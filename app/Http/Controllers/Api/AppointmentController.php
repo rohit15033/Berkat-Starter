@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
 use App\Models\Customer;
+use Illuminate\Http\Request;
 
 class AppointmentController extends Controller
 {
@@ -16,12 +17,27 @@ class AppointmentController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return AppointmentResource::collection(
-            Appointment::with('customers')->orderBy('time', 'desc')->paginate(10)
-        );
+        $perPage = $request->query('perPage', 10);
+        $page = $request->query('page', 1);
+        $search = $request->query('search', '');
+
+        $query = Appointment::query();
+
+        if ($search) {
+            $query->join('customers_appointments', 'appointments.id', '=', 'customers_appointments.appointment_id')
+                ->join('customers', 'customers.id', '=', 'customers_appointments.customer_id')
+                ->where('customers.name', 'LIKE', "%{$search}%")
+                ->orWhere('customers.phone', 'LIKE', "%{$search}%")
+                ->select('appointments.*');
+        }
+
+        $appointments = $query->with('customers')->paginate($perPage, ['*'], 'page', $page);
+
+        return AppointmentResource::collection($appointments);
     }
+
 
     /**
      * Store a newly created resource in storage.
