@@ -11,7 +11,7 @@ return new class extends Migration
             $table->id();
             $table->timestamps();
             $table->string('name');
-            $table->string('phone', 20); // fixed typo
+            $table->string('phone', 20);
             $table->string('instagram')->nullable();
             $table->string('status')->nullable()->default('chat');
         });
