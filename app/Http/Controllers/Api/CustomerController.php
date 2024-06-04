@@ -7,6 +7,7 @@ use App\Models\Customer;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreCustomerRequest;
 use App\Http\Requests\UpdateCustomerRequest;
+use Illuminate\Http\Request;
 
 class CustomerController extends Controller
 {
@@ -15,10 +16,29 @@ class CustomerController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return CustomerResource::collection(Customer::query()->orderBy('name')->paginate(10));
+        $perPage = $request->query('perPage', 10);
+        $page = $request->query('page', 1);
+        $search = $request->query('search', '');
+        $query = Customer::query();
+        $status = $request->query('status', ''); // Get the status filter from query params
+
+
+        if ($status) {
+            $query->where('status', $status);
+        }
+
+        if ($search) {
+            $query->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('phone', 'LIKE', "%{$search}%");
+        }
+
+
+        $customers = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+        return CustomerResource::collection($customers);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -29,7 +49,7 @@ class CustomerController extends Controller
     public function store(StoreCustomerRequest $request)
     {
         $data = $request->validated();
-        $customer = Customer::create($data);
+        $customer = Customer::query()->create($data);
         return response(new CustomerResource($customer),201);
     }
 

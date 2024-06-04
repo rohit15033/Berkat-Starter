@@ -7,6 +7,7 @@ use App\Http\Requests\StoreUserRequest;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Resources\UserResource;
 use App\Models\User;
+use Illuminate\Http\Request;
 
 class UserController extends Controller
 {
@@ -15,9 +16,22 @@ class UserController extends Controller
      *
      * @return \Illuminate\Http\Resources\Json\AnonymousResourceCollection
      */
-    public function index()
+    public function index(Request $request)
     {
-        return UserResource::collection(User::query()->orderBy('id', 'desc')->paginate(10));
+        $perPage = $request->query('perPage', 10);
+        $page = $request->query('page', 1);
+        $search = $request->query('search', '');
+
+        $query = User::query();
+
+        if ($search) {
+            $query->where('name', 'LIKE', "%{$search}%")
+                ->orWhere('email', 'LIKE', "%{$search}%");
+        }
+
+        $users = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        return UserResource::collection($users);
     }
 
     /**

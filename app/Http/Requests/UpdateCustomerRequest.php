@@ -27,7 +27,7 @@ class UpdateCustomerRequest extends FormRequest
             'name' =>'required|string|max:255',
             'phone' => 'required|string|max:255',
             'instagram' => 'required|string|max:255',
-            'status' => 'required|in:active,inactive',
+            'status' => 'required|string|max:255',
         ];
     }
 }
