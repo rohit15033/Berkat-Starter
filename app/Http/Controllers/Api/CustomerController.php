@@ -18,20 +18,27 @@ class CustomerController extends Controller
      */
     public function index(Request $request)
     {
-
         $perPage = $request->query('perPage', 10);
         $page = $request->query('page', 1);
         $search = $request->query('search', '');
         $query = Customer::query();
+        $status = $request->query('status', ''); // Get the status filter from query params
+
+
+        if ($status) {
+            $query->where('status', $status);
+        }
 
         if ($search) {
             $query->where('name', 'LIKE', "%{$search}%")
                 ->orWhere('phone', 'LIKE', "%{$search}%");
-            }
+        }
+
 
         $customers = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
         return CustomerResource::collection($customers);
     }
+
 
     /**
      * Store a newly created resource in storage.

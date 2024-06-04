@@ -13,6 +13,7 @@ export default function Customers() {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState("");
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -23,16 +24,20 @@ export default function Customers() {
     getCustomers();
   };
 
-  useEffect(() => {
-    debouncedGetCustomers(currentPage, searchQuery);
-  }, [currentPage, searchQuery]);
+  const handleStatusFilterChange = (e) => {
+    setStatusFilter(e.target.value);
+    setCurrentPage(1);
+  };
 
-  const getCustomers = useCallback((page, query) => {
+  useEffect(() => {
+    debouncedGetCustomers(currentPage, searchQuery, statusFilter);
+  }, [currentPage, searchQuery, statusFilter]);
+
+  const getCustomers = useCallback((page, query, status) => {
     setLoading(true);
-    axiosClient.get('/customers', { params: { page, search: query } })
+    axiosClient.get('/customers', { params: { page, search: query, status } })
       .then(({ data }) => {
         setLoading(false);
-        console.log(data);
         setCustomers(data.data);
         setLastPage(data.meta.last_page);
       })
@@ -48,13 +53,13 @@ export default function Customers() {
     axiosClient.delete(`/customers/${customer.id}`)
       .then(() => {
         setNotification("Customer has been deleted successfully");
-        getCustomers(currentPage, searchQuery);
+        getCustomers(currentPage, searchQuery, statusFilter);
       });
   }
 
   const debouncedGetCustomers = useCallback(
-    debounce((page, query) => {
-      getCustomers(page, query);
+    debounce((page, query, status) => {
+      getCustomers(page, query, status);
     }, 500),
     [getCustomers]
   );
@@ -65,7 +70,14 @@ export default function Customers() {
         <h1>Customers</h1>
         <Link to="/customers/new" className="btn-add">Add New Customer</Link>
       </div>
-      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+      <div style={{display: 'flex', justifyContent: "space-between", alignItems: "center"}}>
+        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+        <select onChange={handleStatusFilterChange} value={statusFilter}>
+          <option value="">All</option>
+          <option value="active">Active</option>
+          <option value="inactive">Inactive</option>
+        </select>
+      </div>
       <div className="card animated fadeInDown">
         <table>
           <thead>

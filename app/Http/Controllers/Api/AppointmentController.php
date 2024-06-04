@@ -24,6 +24,12 @@ class AppointmentController extends Controller
         $search = $request->query('search', '');
 
         $query = Appointment::query();
+        $type = $request->query('type', ''); // Get the status filter from query params
+
+
+        if ($type) {
+            $query->where('type', $type);
+        }
 
         if ($search) {
             $query->join('customers_appointments', 'appointments.id', '=', 'customers_appointments.appointment_id')

@@ -63,7 +63,7 @@ export default function CustomerForm() {
 
   return (
     <>
-      {customer.id ? <h1>Update Customer: {customer.name}</h1> : <h1>New Customer</h1>}
+      {customer.id ? <h1>Update Customer: {customer.name}</h1> : <h1>  Customer</h1>}
       <div className="card animated fadeInDown">
         {loading && (
           <div className="text-center">

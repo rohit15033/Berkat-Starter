@@ -13,6 +13,7 @@ export default function Appointments() {
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [typeFilter, setTypeFilter] = useState("");
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -34,10 +35,21 @@ export default function Appointments() {
       });
   }
 
+  const handelTypeFilterChange = (e) => {
+    setTypeFilter(e.target.value);
+    setCurrentPage(1);
+  };
+
+
+  const handleTypeFilter = () => {
+    setCurrentPage(1);
+    getAppointments();
+  };
+
   const debouncedGetAppointments = useCallback(
-    debounce((page, query) => {
+    debounce((page, query, type) => {
       setLoading(true);
-      axiosClient.get("/appointments", { params: { page, search: query } })
+      axiosClient.get("/appointments", { params: { page, search: query, type } })
         .then(({ data }) => {
           setLoading(false);
           console.log(data);
@@ -55,8 +67,8 @@ export default function Appointments() {
   );
 
   useEffect(() => {
-    debouncedGetAppointments(currentPage, searchQuery);
-  }, [currentPage, searchQuery, debouncedGetAppointments]);
+    debouncedGetAppointments(currentPage, searchQuery, typeFilter);
+  }, [currentPage, searchQuery, typeFilter]);
 
   return (
     <div>
@@ -64,7 +76,15 @@ export default function Appointments() {
         <h1>Appointments</h1>
         <Link to="/appointments/new" className="btn-add">Add New Appointment</Link>
       </div>
-      <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+      <div style={{display: 'flex', justifyContent: "space-between", alignItems: "center"}}>
+        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleTypeFilter}/>
+        <select onChange={handelTypeFilterChange} value={typeFilter}>
+          <option value="">All</option>
+          <option value="new_customer">New Customer</option>
+          <option value="fitting">fitting</option>
+          <option value="last_fitting">Last Fitting</option>
+        </select>
+      </div>
       <div className="card animated fadeInDown">
         <table>
           <thead>
@@ -113,7 +133,7 @@ export default function Appointments() {
           )}
         </table>
       </div>
-      <Pagination currentPage={currentPage} lastPage={lastPage} onPageChange={handlePageChange} />
+      <Pagination currentPage={currentPage} lastPage={lastPage} onPageChange={handlePageChange}/>
     </div>
   )
 }
