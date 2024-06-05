@@ -34,6 +34,7 @@ export default function DefaultLayout() {
         <Link to="/users">Users</Link>
         <Link to="/appointments">Appointments</Link>
         <Link to="/customers">Customers</Link>
+        <Link to="/invoices">Invoices</Link>
       </aside>
       <div className="content">
         <header>

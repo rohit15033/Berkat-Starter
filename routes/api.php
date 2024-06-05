@@ -27,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/users', UserController::class);
     Route::apiResource('/appointments',AppointmentController::class);
     Route::apiResource('/customers',CustomerController::class);
+    Route::apiResource('/invoices',InvoiceController::class);
 
 
 
