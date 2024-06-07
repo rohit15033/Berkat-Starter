@@ -1,4 +1,4 @@
-import ModuleForm from "../../components/ModuleForm.jsx";
+import ModuleForm from "../../components/moduleTemplate/ModuleForm.jsx";
 
 export default function UserForm() {
   const appointmentFields = [

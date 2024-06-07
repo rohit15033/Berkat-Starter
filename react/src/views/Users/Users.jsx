@@ -1,4 +1,4 @@
-import ModuleIndex from "../../components/ModuleIndex.jsx";
+import ModuleIndex from "../../components/moduleTemplate/ModuleIndex.jsx";
 import {Link} from "react-router-dom";
 
 export default function Users() {

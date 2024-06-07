@@ -1,12 +1,12 @@
 // ModuleIndex.jsx
 
 import { useCallback, useEffect, useState } from "react";
-import axiosClient from "../axios-client.js";
+import axiosClient from "../../axios-client.js";
 import { debounce } from "lodash";
-import Pagination from "./Pagination.jsx";
-import SearchBar from "./SearchBar.jsx";
+import Pagination from "../Pagination.jsx";
+import SearchBar from "../SearchBar.jsx";
 import { Link } from "react-router-dom";
-import { useStateContext } from "../context/ContextProvider.jsx";
+import { useStateContext } from "../../context/ContextProvider.jsx";
 
 export default function ModuleIndex({ endpoint, columns, renderActions, entityName, foreignEntity }) {
   const [data, setData] = useState([]);

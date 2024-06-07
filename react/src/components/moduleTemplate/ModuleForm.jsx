@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
-import axiosClient from "../axios-client.js";
 import { useParams, useNavigate } from "react-router-dom";
-import { useStateContext } from "../context/ContextProvider.jsx";
+import { useStateContext } from "../../context/ContextProvider.jsx";
+import { getEntityById, updateEntity, createEntity } from "../api.js";
 
 export default function ModuleForm({ endpoint, entityName, fields, foreignEntity }) {
   const [data, setData] = useState({});
@@ -14,14 +14,14 @@ export default function ModuleForm({ endpoint, entityName, fields, foreignEntity
   useEffect(() => {
     if (id) {
       setLoading(true);
-      axiosClient.get(`${endpoint}/${id}`)
-        .then(({ data }) => {
+      getEntityById(endpoint, id)
+        .then(data => {
           setData(data);
           setLoading(false);
         })
-        .catch((error) => {
+        .catch(error => {
           setLoading(false);
-          setErrors(error.response ? error.response.data : { message: "An error occurred" });
+          setErrors(error);
         });
     }
   }, [id, endpoint]);
@@ -34,24 +34,24 @@ export default function ModuleForm({ endpoint, entityName, fields, foreignEntity
 
     if (id) {
       delete submitData[foreignEntity];
-      axiosClient.put(`${endpoint}/${id}`, submitData)
+      updateEntity(endpoint, id, submitData)
         .then(() => {
           setNotification(`${entityName} was successfully updated`);
           navigate(`/${entityName.toLowerCase()}s`); // Redirect to pluralized entity name
         })
-        .catch((error) => {
+        .catch(error => {
           setLoading(false);
-          setErrors(error.response ? error.response.data : { message: "An error occurred" });
+          setErrors(error);
         });
     } else {
-      axiosClient.post(endpoint, submitData)
+      createEntity(endpoint, submitData)
         .then(() => {
           setNotification(`${entityName} was successfully created`);
           navigate(`/${entityName.toLowerCase()}s`); // Redirect to pluralized entity name
         })
-        .catch((error) => {
+        .catch(error => {
           setLoading(false);
-          setErrors(error.response ? error.response.data : { message: "An error occurred" });
+          setErrors(error);
         });
     }
   };
@@ -94,9 +94,7 @@ export default function ModuleForm({ endpoint, entityName, fields, foreignEntity
     return mappedItem;
   };
 
-
   const mappedData = dataMapper(data);
-
 
   return (
     <div>
