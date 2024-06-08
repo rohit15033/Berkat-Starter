@@ -19,8 +19,6 @@ class AppointmentController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->query('perPage', 10);
-        $page = $request->query('page', 1);
         $search = $request->query('search', '');
 
         $query = Appointment::query();
@@ -39,7 +37,7 @@ class AppointmentController extends Controller
                 ->select('appointments.*');
         }
 
-        $appointments = $query->with('customers')->paginate($perPage, ['*'], 'page', $page);
+        $appointments = $query->with('customers')->get();
 
         return AppointmentResource::collection($appointments);
     }

@@ -1,5 +1,3 @@
-// ModuleIndex.jsx
-
 import { useCallback, useEffect, useState } from "react";
 import axiosClient from "../../axios-client.js";
 import { debounce } from "lodash";
@@ -8,13 +6,14 @@ import SearchBar from "../SearchBar.jsx";
 import { Link } from "react-router-dom";
 import { useStateContext } from "../../context/ContextProvider.jsx";
 
-export default function ModuleIndex({ endpoint, columns, renderActions, entityName, foreignEntity }) {
+export default function ModuleIndex({ endpoint, columns, renderActions, entityName, foreignEntity, filters }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const { setNotification } = useStateContext();
   const [currentPage, setCurrentPage] = useState(1);
   const [lastPage, setLastPage] = useState(1);
   const [searchQuery, setSearchQuery] = useState('');
+  const [selectedFilter, setSelectedFilter] = useState('');
 
   const handlePageChange = (newPage) => {
     setCurrentPage(newPage);
@@ -31,18 +30,17 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
     axiosClient.delete(`${endpoint}/${item.id}`)
       .then(() => {
         setNotification(`${entityName} was successfully deleted`);
-        getData();
+        debouncedGet();
       });
   };
 
   const debouncedGet = useCallback(
-    debounce((page, query) => {
+    debounce((page, query, filter) => {
       setLoading(true);
-      axiosClient.get(endpoint, { params: { page, search: query } })
+      axiosClient.get(endpoint, { params: { page, search: query, filter } })
         .then(({ data }) => {
           setLoading(false);
           setData(data.data);
-          console.log(data)
           setLastPage(data.meta.last_page);
         })
         .catch(() => {
@@ -53,8 +51,8 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
   );
 
   useEffect(() => {
-    debouncedGet(currentPage, searchQuery);
-  }, [currentPage, searchQuery]);
+    debouncedGet(currentPage, searchQuery, selectedFilter);
+  }, [currentPage, searchQuery, selectedFilter]);
 
   const dataMapper = (item) => {
     const mappedItem = { ...item };
@@ -66,55 +64,54 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
   };
 
   const mappedData = data.map(dataMapper);
-  // console.log(mappedData);
 
   return (
-    <div>
-      <div style={{ display: 'flex', justifyContent: "space-between", alignItems: "center" }}>
+    <div className="container-fluid">
+      <div className="d-flex justify-content-between align-items-center mb-3">
         <h1>{entityName}</h1>
-        <Link className="btn-add" to={`${endpoint}/new`}>Add new</Link>
+        <Link className="btn btn-primary" to={`${endpoint}/new`}>Add new</Link>
       </div>
-      {currentPage === 1 && <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />}
-      <div className="card animated fadeInDown">
-        <table>
-          <thead>
-          <tr>
-            {columns.map((col) => (
-              <th key={col.key}>{col.label}</th>
+      {currentPage === 1 && (
+        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+      )}
+      {filters && filters.length > 0 && (
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <select value={selectedFilter} onChange={(e) => setSelectedFilter(e.target.value)}>
+            <option value="">All</option>
+            {filters.map(filter => (
+              <option key={filter.value} value={filter.value}>{filter.label}</option>
             ))}
-            <th>Actions</th>
-          </tr>
-          </thead>
-          {loading && (
-            <tbody>
+          </select>
+        </div>
+      )}
+      {loading && <p>Loading {entityName}...</p>}
+      {!loading && data.length === 0 && <p>No {entityName.toLowerCase()} found.</p>}
+      {!loading && data.length > 0 && (
+        <div className="table-responsive">
+          <table className="table table-striped table-bordered">
+            <thead className="table-dark">
             <tr>
-              <td colSpan={columns.length + 1} className="text-center">
-                Loading...
-              </td>
+              {columns.map((col) => (
+                <th key={col.key}>{col.label}</th>
+              ))}
+              <th>Actions</th>
             </tr>
-            </tbody>
-          )}
-          {!loading && data.length > 0 && (
+            </thead>
             <tbody>
             {mappedData.map((item) => (
               <tr key={item.id}>
                 {columns.map((col) => (
                   <td key={col.key}>{item[col.key]}</td>
                 ))}
-                <td>{renderActions(dataMapper(item), onDeleteClick)}</td>
+                <td>
+                  {renderActions(item, onDeleteClick)}
+                </td>
               </tr>
             ))}
             </tbody>
-          )}
-          {!loading && data.length === 0 && (
-            <tbody>
-            <tr>
-              <td colSpan={columns.length + 1} className="text-center">No {entityName.toLowerCase()} found.</td>
-            </tr>
-            </tbody>
-          )}
-        </table>
-      </div>
+          </table>
+        </div>
+      )}
       <Pagination currentPage={currentPage} lastPage={lastPage} onPageChange={handlePageChange} />
     </div>
   );

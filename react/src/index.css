@@ -1,3 +1,5 @@
+/* Existing and additional CSS */
+
 .bd-placeholder-img {
     font-size: 1.125rem;
     text-anchor: middle;
@@ -75,8 +77,7 @@
     display: block !important;
 }
 
-html,
-body {
+html, body {
     height: 100%;
 }
 
@@ -104,6 +105,7 @@ body {
 body {
     min-height: 100vh;
     min-height: -webkit-fill-available;
+    overflow-y: auto;
 }
 
 html {
@@ -118,71 +120,136 @@ main {
     overflow-y: hidden;
 }
 
-.dropdown-toggle { outline: 0; }
 
-.btn-toggle {
-    padding: .25rem .5rem;
-    font-weight: 600;
-    color: var(--bs-emphasis-color);
+
+/* Additional CSS for ModuleIndex */
+
+.container-fluid {
+    padding: 20px;
+}
+
+.table-responsive {
+    margin-top: 20px;
+    width: 100%;
+}
+
+.table {
+    border-radius: 5px;
+    overflow: hidden;
+    width: 100%;
+    margin-bottom: 1rem;
+    color: #212529;
     background-color: transparent;
+    align-items: center;
 }
 
-.btn-toggle::before {
-    width: 1.25em;
-    line-height: 0;
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,1%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
-    transition: transform .35s ease;
-    transform-origin: .5em 50%;
+.table thead {
+    background-color: #343a40;
+    color: #fff;
 }
 
-[data-bs-theme="dark"] .btn-toggle::before {
-    content: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='rgba%28255,255,255,.5%29' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 14l6-6-6-6'/%3e%3c/svg%3e");
+.table tbody tr:hover {
+    background-color: #f1f1f1;
 }
 
-.btn-toggle[aria-expanded="true"] {
-    color: white;
-    background:rgba(0, 0, 0, .1) ;
-}
-.btn-toggle[aria-expanded="true"]::before {
-    transform: rotate(90deg);
+.table th, .table td {
+    vertical-align: middle;
+    padding: 0.75rem;
+    text-align: left;
+    border-top: 1px solid #dee2e6;
 }
 
-.btn-toggle-nav a {
-    padding: .1875rem .5rem;
-    margin-top: .125rem;
-    margin-left: 0rem;
+.text-center {
+    text-align: center;
+}
+
+.text-nowrap {
+    white-space: nowrap;
 }
 
 
-.btn-toggle-nav a:hover,
-.btn-toggle-nav a:focus {
-    background-color: #0d6efd;
-    color: black !important;
+.table-responsive {
+    display: flex;
+    justify-content: center;
 }
 
-.scrollarea {
-    overflow-y: auto;
-}
-.custom-bg-white {
-    background-color: white;
-    color: black;
+
+/* ModuleIndex.css */
+
+/* Default font size for th and td */
+table th,
+table td {
+    font-size: 14px; /* Default font size */
+    padding: 8px; /* Default padding */
+    margin: 0; /* Default margin */
 }
 
-.btn-dark-custom {
-    background-color: RGBA(var(--bs-dark-rgb), var(--bs-bg-opacity, 1)) !important;
-    color: white;
-    border: none;
-}
-.btn-dark-custom.collapsed {
-    background-color: RGBA(var(--bs-dark-rgb), var(--bs-bg-opacity, 1)) !important;
-    color: white;
+/* Default button styles */
+.btn {
+    padding: 8px 16px; /* Default button padding */
+    font-size: 14px; /* Default button font size */
 }
 
-.sidebar .link-body-emphasis {
-    color: white !important;
+/* Media query for smaller screens */
+@media screen and (max-width: 768px) {
+    /* Adjust button styles for smaller screens */
+    .btn {
+        padding: 6px 12px; /* Adjust button padding for smaller screens */
+        font-size: 12px; /* Adjust button font size for smaller screens */
+    }
+
+    /* Adjust font size for smaller screens */
+    table th,
+    table td {
+        font-size: 12px; /* Adjust font size for smaller screens */
+        padding: 6px; /* Adjust padding for smaller screens */
+        margin: 0; /* Adjust margin for smaller screens */
+    }
 }
 
-.sidebar .link-body-emphasis:hover,
-.sidebar .link-body-emphasis:focus {
-    color: white !important;
+/* Media query for larger screens */
+@media screen and (min-width: 1920px) {
+    /* Adjust button styles for larger screens */
+    .btn {
+        padding: 10px 20px; /* Adjust button padding for larger screens */
+        font-size: 16px; /* Adjust button font size for larger screens */
+    }
+
+    /* Adjust font size for larger screens */
+    table th,
+    table td {
+        font-size: 18px; /* Adjust font size for larger screens */
+        padding: 10px; /* Adjust padding for larger screens */
+        margin: 0; /* Adjust margin for larger screens */
+    }
+    .table{
+        table-layout: fixed;
+    }
 }
+
+/* Media query for even larger screens */
+@media screen and (min-width: 2560px) {
+    /* Adjust button styles for even larger screens */
+    .btn {
+        padding: 12px 24px; /* Adjust button padding for even larger screens */
+        font-size: 18px; /* Adjust button font size for even larger screens */
+    }
+
+    /* Adjust font size for even larger screens */
+    table th,
+    table td {
+        font-size: 26px; /* Adjust font size for even larger screens */
+        padding: 20px; /* Adjust padding for even larger screens */
+        margin: 0; /* Adjust margin for even larger screens */
+    }
+    .table{
+        table-layout: fixed;
+    }
+}
+
+.card {
+    /* Adjust the maximum width of the card */
+    width: fit-content; /* Adjust the value as needed */
+
+}
+

@@ -11,9 +11,10 @@ export default function Users() {
 
   const renderActions = (user, onDeleteClick) => (
     <>
-      <Link className="btn-edit" to={`/users/${user.id}`}>Edit</Link>
+      <Link className="btn btn-success" to={`/users/${user.id}`}>Edit</Link>
       &nbsp;
-      <button className="btn-delete" onClick={() => onDeleteClick(user)}>Delete</button>
+      <button className="btn btn-danger" onClick={() => onDeleteClick(user)}>Delete</button>
+
     </>
   );
 
