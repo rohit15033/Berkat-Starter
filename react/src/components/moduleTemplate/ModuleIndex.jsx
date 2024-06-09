@@ -66,53 +66,57 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
   const mappedData = data.map(dataMapper);
 
   return (
-    <div className="container-fluid">
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <h1>{entityName}</h1>
-        <Link className="btn btn-primary" to={`${endpoint}/new`}>Add new</Link>
-      </div>
-      {currentPage === 1 && (
-        <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
-      )}
-      {filters && filters.length > 0 && (
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <select value={selectedFilter} onChange={(e) => setSelectedFilter(e.target.value)}>
-            <option value="">All</option>
-            {filters.map(filter => (
-              <option key={filter.value} value={filter.value}>{filter.label}</option>
-            ))}
-          </select>
-        </div>
-      )}
-      {loading && <p>Loading {entityName}...</p>}
-      {!loading && data.length === 0 && <p>No {entityName.toLowerCase()} found.</p>}
-      {!loading && data.length > 0 && (
-        <div className="table-responsive">
-          <table className="table table-striped table-bordered">
-            <thead className="table-dark">
-            <tr>
-              {columns.map((col) => (
-                <th key={col.key}>{col.label}</th>
-              ))}
-              <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {mappedData.map((item) => (
-              <tr key={item.id}>
-                {columns.map((col) => (
-                  <td key={col.key}>{item[col.key]}</td>
+    <div className="overflow-">
+      <div className="row">
+        <div className="col-12">
+          <h1 className="mb-3">{entityName}</h1>
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <Link className="btn btn-primary" to={`${endpoint}/new`}>Add new</Link>
+            {currentPage === 1 && (
+              <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
+            )}
+          </div>
+          {filters && filters.length > 0 && (
+            <div className="d-flex justify-content-end align-items-center mb-3">
+              <select value={selectedFilter} onChange={(e) => setSelectedFilter(e.target.value)} className="form-select">
+                <option value="">All</option>
+                {filters.map(filter => (
+                  <option key={filter.value} value={filter.value}>{filter.label}</option>
                 ))}
-                <td>
-                  {renderActions(item, onDeleteClick)}
-                </td>
-              </tr>
-            ))}
-            </tbody>
-          </table>
+              </select>
+            </div>
+          )}
+          {loading && <p>Loading {entityName}...</p>}
+          {!loading && data.length === 0 && <p>No {entityName.toLowerCase()} found.</p>}
+          {!loading && data.length > 0 && (
+            <div className="table-responsive">
+              <table className="table table-striped table-bordered">
+                <thead className="table-dark">
+                <tr>
+                  {columns.map((col) => (
+                    <th key={col.key}>{col.label}</th>
+                  ))}
+                  <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {mappedData.map((item) => (
+                  <tr key={item.id}>
+                    {columns.map((col) => (
+                      <td key={col.key}>{item[col.key]}</td>
+                    ))}
+                    <td>
+                      {renderActions(item, onDeleteClick)}
+                    </td>
+                  </tr>
+                ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <Pagination currentPage={currentPage} lastPage={lastPage} onPageChange={handlePageChange} />
         </div>
-      )}
-      <Pagination currentPage={currentPage} lastPage={lastPage} onPageChange={handlePageChange} />
+      </div>
     </div>
   );
 }

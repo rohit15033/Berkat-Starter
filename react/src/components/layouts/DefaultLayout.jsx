@@ -11,9 +11,9 @@ export default function DefaultLayout() {
   }
 
   return (
-    <div id="defaultLayout" className="d-flex">
+    <div id="defaultLayout" className="d-flex overflow-x-hidden">
       <Sidebar />
-      <div id = "outlet-notification" className="d-flex flex-column flex-grow-1 align-items-center">
+      <div id = "outlet-notification" className="d-flex flex-column flex-grow-1 overflow-x-scroll">
         <main>
           <Outlet />
         </main>
