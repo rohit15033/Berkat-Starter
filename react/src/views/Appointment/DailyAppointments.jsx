@@ -90,14 +90,14 @@ const DailyAppointments = () => {
       </div>
       <div className="row mt-3">
         <div className="col">
-          <h2>Appointments for Today</h2>
+          <h2 className="mb-3">Appointments for Today</h2>
           {loading && <p>Loading appointments...</p>}
-          {!loading && appointmentsToday.length === 0 && <p>No appointments for today.</p>}
+          {!loading && appointmentsToday.length === 0 && <p className="mb-1">No appointments for today.</p>}
           {!loading && appointmentsToday.length > 0 && (
-            <div className="row row-cols-1 row-cols-md-2 g-3 overflow-auto" style={{ maxHeight: '50vh' }}>
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
               {appointmentsToday.map(appointment => (
                 <div className="col" key={appointment.id}>
-                  <div className="card h-100" style={{ maxWidth: '18rem' }}>
+                  <div className="card h-100">
                     <div className="card-body">
                       <h5 className="card-title">Time: {moment(appointment.time, 'DD-MM-YYYY HH:mm').format('D MMMM YYYY, HH:mm')}</h5>
                       <p className="card-text">Customer Name: {appointment.customers?.[0]?.name || 'N/A'}</p>
@@ -122,10 +122,10 @@ const DailyAppointments = () => {
           {loading && <p>Loading appointments...</p>}
           {!loading && appointmentsTomorrow.length === 0 && <p>No appointments for tomorrow.</p>}
           {!loading && appointmentsTomorrow.length > 0 && (
-            <div className="row row-cols-1 row-cols-md-2 g-3 overflow-auto" style={{ maxHeight: '50vh' }}>
+            <div className="row row-cols-1 row-cols-sm-2 row-cols-md-3 row-cols-lg-4 g-3">
               {appointmentsTomorrow.map(appointment => (
                 <div className="col" key={appointment.id}>
-                  <div className="card h-100" style={{ maxWidth: '18rem' }}>
+                  <div className="card h-100">
                     <div className="card-body">
                       <h5 className="card-title">Time: {moment(appointment.time, 'DD-MM-YYYY HH:mm').format('D MMMM YYYY, HH:mm')}</h5>
                       <p className="card-text">Customer Name: {appointment.customers?.[0]?.name || 'N/A'}</p>

@@ -6,7 +6,7 @@ import SearchBar from "../SearchBar.jsx";
 import { Link } from "react-router-dom";
 import { useStateContext } from "../../context/ContextProvider.jsx";
 
-export default function ModuleIndex({ endpoint, columns, renderActions, entityName, foreignEntity, filters }) {
+export default function ModuleIndex({ endpoint, columns, renderActions, entityName, foreignEntity, filters, filterKey }) {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(false);
   const { setNotification } = useStateContext();
@@ -19,7 +19,13 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
     setCurrentPage(newPage);
   };
 
-  const handleSearch = () => {
+  const handleSearchQueryChange = (query) => {
+    setSearchQuery(query);
+    setCurrentPage(1);
+  };
+
+  const handleFilterChange = (filter) => {
+    setSelectedFilter(filter);
     setCurrentPage(1);
   };
 
@@ -30,14 +36,14 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
     axiosClient.delete(`${endpoint}/${item.id}`)
       .then(() => {
         setNotification(`${entityName} was successfully deleted`);
-        debouncedGet();
+        debouncedGet(currentPage, searchQuery, selectedFilter);
       });
   };
 
   const debouncedGet = useCallback(
     debounce((page, query, filter) => {
       setLoading(true);
-      axiosClient.get(endpoint, { params: { page, search: query, filter } })
+      axiosClient.get(endpoint, { params: { page, search: query, [filterKey]: filter } })
         .then(({ data }) => {
           setLoading(false);
           setData(data.data);
@@ -47,12 +53,12 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
           setLoading(false);
         });
     }, 500),
-    []
+    [endpoint, filterKey]
   );
 
   useEffect(() => {
     debouncedGet(currentPage, searchQuery, selectedFilter);
-  }, [currentPage, searchQuery, selectedFilter]);
+  }, [currentPage, searchQuery, selectedFilter, debouncedGet]);
 
   const dataMapper = (item) => {
     const mappedItem = { ...item };
@@ -66,19 +72,16 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
   const mappedData = data.map(dataMapper);
 
   return (
-    <div className="overflow-">
       <div className="row">
         <div className="col-12">
           <h1 className="mb-3">{entityName}</h1>
           <div className="d-flex justify-content-between align-items-center mb-3">
             <Link className="btn btn-primary" to={`${endpoint}/new`}>Add new</Link>
-            {currentPage === 1 && (
-              <SearchBar searchQuery={searchQuery} setSearchQuery={setSearchQuery} onSearch={handleSearch} />
-            )}
+            <SearchBar searchQuery={searchQuery} setSearchQuery={handleSearchQueryChange} onSearch={() => debouncedGet(1, searchQuery, selectedFilter)} />
           </div>
           {filters && filters.length > 0 && (
             <div className="d-flex justify-content-end align-items-center mb-3">
-              <select value={selectedFilter} onChange={(e) => setSelectedFilter(e.target.value)} className="form-select">
+              <select value={selectedFilter} onChange={(e) => handleFilterChange(e.target.value)} className="form-select">
                 <option value="">All</option>
                 {filters.map(filter => (
                   <option key={filter.value} value={filter.value}>{filter.label}</option>
@@ -117,6 +120,5 @@ export default function ModuleIndex({ endpoint, columns, renderActions, entityNa
           <Pagination currentPage={currentPage} lastPage={lastPage} onPageChange={handlePageChange} />
         </div>
       </div>
-    </div>
   );
 }

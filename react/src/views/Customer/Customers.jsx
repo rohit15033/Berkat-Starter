@@ -1,5 +1,6 @@
 import ModuleIndex from "../../components/moduleTemplate/ModuleIndex.jsx";
 import {Link} from "react-router-dom";
+import {useState} from "react";
 
 export default function Customers() {
   const columns = [
@@ -9,6 +10,15 @@ export default function Customers() {
     { key: "phone", label: "Phone Number" },
     { key: "status", label: "Status " }
   ];
+
+  const filters = [
+    { label: "Chat", value: "chat" },
+    { label: "New Customer", value: "new_customer" },
+    { label: "Visit", value: "visit" },
+    { label: "Reschedule", value: "reschedule"},
+    { label: "Deal", value: "deal" },
+    { label: "Followed Up", value: "followed_up" }
+  ]
 
   const renderActions = (customer, onDeleteClick) => (
     <>
@@ -25,6 +35,8 @@ export default function Customers() {
       renderActions={renderActions}
       onDeleteMessage="Are you sure you want to delete this customer?"
       entityName="Customers"
+      filters={filters}
+      filterKey="status"
     />
   );
 }

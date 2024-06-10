@@ -6,11 +6,14 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 
 export default function Appointments() {
   const [currentView, setCurrentView] = useState('dailyAppointments'); // Set default view to dailyAppointments
-  const [filters, setFilters] = useState([]);
+  const filters = [
+    { label: "New Customer", value: "new_customer" },
+    { label: "Fitting", value: "fitting" },
+    { label: "Last Fitting", value: "last_fitting" }
+  ];
 
   return (
     <div>
-      {/* Switch to toggle between views */}
       <div className="d-flex align-items-center mb-3">
         <span>Daily Appointments</span>
         <div className="form-check form-switch mx-3">
@@ -48,11 +51,8 @@ export default function Appointments() {
             onDeleteMessage="Are you sure you want to delete this appointment?"
             entityName="Appointments"
             foreignEntity="customers"
-            filters={[
-              { label: "New Customer", value: "new_customer" },
-              { label: "Fitting", value: "fitting" },
-              { label: "Last Fitting", value: "last_fitting" }
-            ]}
+            filters={filters}
+            filterKey="type"
           />
         </div>
       ) : (

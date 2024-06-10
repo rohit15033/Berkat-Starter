@@ -36,8 +36,8 @@ const Sidebar = () => {
   ];
 
   return (
-    <div className={`d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar ${isCollapsed ? 'collapsed' : ''}`}
-         style={{minWidth: isCollapsed ? '80px' : '240px', height: "100vh"}}>
+    <div className={`d-flex flex-column flex-shrink-0 p-3 text-bg-dark sidebar position-fixed ${isCollapsed ? 'collapsed' : ''}`}
+         style={{minWidth: isCollapsed ? '13vh' : '26vh', height: "100vh", zIndex: 99}}>
       <button onClick={toggleCollapse} className="btn-dark-custom mb-3">
         <FontAwesomeIcon icon={isCollapsed ? faBars : faTimes}/>
       </button>
@@ -62,10 +62,10 @@ const Sidebar = () => {
           <div className="collapse" id="inventory-collapse">
             <ul className="btn-toggle-nav list-unstyled fw-normal pb-1 small">
               <li><NavLink to="#"
-                           className={`link-body-emphasis d-inline-flex text-decoration-none rounded ${isCollapsed ? 'fs-5' : ''}`}>Kebaya</NavLink>
+                           className={`link-body-emphasis d-inline-flex text-decoration-none rounded ${isCollapsed ? 'fs-6' : ''}`}>Kebaya</NavLink>
               </li>
               <li><NavLink to="#"
-                           className={`link-body-emphasis d-inline-flex text-decoration-none rounded ${isCollapsed ? 'fs-5' : ''}`}>Beskap</NavLink>
+                           className={`link-body-emphasis d-inline-flex text-decoration-none rounded ${isCollapsed ? 'fs-6' : ''}`}>Beskap</NavLink>
               </li>
             </ul>
           </div>

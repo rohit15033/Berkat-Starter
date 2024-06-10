@@ -22,7 +22,7 @@ class AppointmentController extends Controller
         $search = $request->query('search', '');
 
         $query = Appointment::query();
-        $type = $request->query('type', ''); // Get the status filter from query params
+        $type = $request->query('type', '');
 
 
         if ($type) {

@@ -21,8 +21,9 @@ class CustomerController extends Controller
         $perPage = $request->query('perPage', 10);
         $page = $request->query('page', 1);
         $search = $request->query('search', '');
+        $status = $request->query('status', '');
         $query = Customer::query();
-        $status = $request->query('status', ''); // Get the status filter from query params
+
 
 
         if ($status) {
