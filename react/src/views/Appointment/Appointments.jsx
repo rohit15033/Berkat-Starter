@@ -49,7 +49,6 @@ export default function Appointments() {
             entityName="Appointments"
             foreignEntity="customers"
             filters={[
-              { label: "All", value: "" },
               { label: "New Customer", value: "new_customer" },
               { label: "Fitting", value: "fitting" },
               { label: "Last Fitting", value: "last_fitting" }
