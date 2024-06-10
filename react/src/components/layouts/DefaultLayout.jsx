@@ -14,7 +14,7 @@ export default function DefaultLayout() {
     <>
     <div id="defaultLayout" className="d-flex overflow-hidden">
       <Sidebar />
-      <div id = "outlet-notification" className="d-flex flex-column flex-grow-1 overflow-auto p-2">
+      <div id = "outlet-notification" className="d-flex flex-column flex-grow-1 overflow-auto" style={{marginLeft: "15vh"}}>
         <main>
           <Outlet />
         </main>
