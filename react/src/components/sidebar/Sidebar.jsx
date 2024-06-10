@@ -29,7 +29,7 @@ const Sidebar = () => {
   };
 
   const sidebarLinks = [
-    { path: "/dashboard", name: "Dashboard", icon: <FontAwesomeIcon icon={faGauge} /> },
+    // { path: "/dashboard", name: "Dashboard", icon: <FontAwesomeIcon icon={faGauge} /> },
     { path: "/users", name: "Users", icon: <FontAwesomeIcon icon={faUsers} /> },
     { path: "/appointments", name: "Appointments", icon: <FontAwesomeIcon icon={faCalendarCheck} /> },
     { path: "/customers", name: "Customers", icon: <FontAwesomeIcon icon={faPeopleGroup} /> },

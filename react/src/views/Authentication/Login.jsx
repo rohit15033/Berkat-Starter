@@ -102,8 +102,8 @@ export default function Login() {
                 <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> : null}
               {loading ? 'Signing in...' : 'Sign in'}
             </button>
-            <p className="mt-5 mb-3 text-body-secondary">&copy; 2017–2024</p>
-            <p className="message">Not registered? <Link to="/signup">Create an account</Link></p>
+            <p className="mt-5 mb-3 text-body-secondary">&copy; 2024</p>
+            {/*<p className="message">Not registered? <Link to="/signup">Create an account</Link></p>*/}
           </form>
         </main>
       </div>
