@@ -12,9 +12,9 @@ export default function Customers() {
 
   const renderActions = (customer, onDeleteClick) => (
     <>
-      <Link className="btn-edit" to={`/customers/${customer.id}`}>Edit</Link>
+      <Link className="btn btn-success" to={`/customers/${customer.id}`}>Edit</Link>
       &nbsp;
-      <button className="btn-delete" onClick={() => onDeleteClick(customer)}>Delete</button>
+      <button className="btn btn-danger" onClick={() => onDeleteClick(customer)}>Delete</button>
     </>
   );
 

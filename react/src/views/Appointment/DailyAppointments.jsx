@@ -71,9 +71,6 @@ const DailyAppointments = () => {
   return (
     <div className="container mt-4">
       <div className="row">
-        <div className="col">
-          <h1>Daily Agenda</h1>
-        </div>
         <div className="col text-end">
           <Link to="/appointments/new" className="btn btn-success">Add New Appointment</Link>
         </div>
