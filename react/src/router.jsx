@@ -1,4 +1,4 @@
-import {createBrowserRouter, Navigate} from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import Dashboard from "./Dashboard.jsx";
 import DefaultLayout from "./components/layouts/DefaultLayout.jsx";
 import GuestLayout from "./components/layouts/GuestLayout.jsx";
@@ -13,7 +13,11 @@ import Customers from "./views/Customer/Customers.jsx";
 import CustomerForm from "./views/Customer/CustomerForm.jsx";
 import Invoices from "./views/Invoice/Invoices.jsx";
 import InvoicesForm from "./views/Invoice/InvoicesForm.jsx";
-
+import Kebayas from "./views/Inventory/Kebaya/Kebayas.jsx";
+import Beskaps from "./views/Inventory/Beskap/Beskaps.jsx";
+import Gauns from "./views/Inventory/Gaun/Gauns.jsx";
+import Products from "./views/Inventory/products.jsx"
+import ProductForm from "./views/Inventory/productForm.jsx"
 
 const router = createBrowserRouter([
   {
@@ -65,30 +69,29 @@ const router = createBrowserRouter([
         element: <CustomerForm  key="customersUpdate" />
       },
       {
-        path: '/invoices',
-        element: <Invoices />
+        path:'products/kebayas',
+        element: <Kebayas />
       },
       {
-        path:'/invoices/new',
-        element: <InvoicesForm key="invoicesCreate" />
+        path:'products/beskaps',
+        element: <Beskaps />
       },
       {
-        path:'/invoices/:id',
-        element: <InvoicesForm key="invoicesUpdate" />
-      }
-
-      // {
-      //   path: '/inventory',
-      //   element: <Inventory />
-      // },
-      // {
-      //   path:'/inventory/new',
-      //   element: <CustomerForm  key="customersCreate" />
-      // },
-      // {
-      //   path:'/inventory/:id',
-      //   element: <CustomerForm  key="customersUpdate" />
-      // }
+        path:'products/gauns',
+        element: <Gauns />
+      },
+      {
+        path:'/products',
+        element: <Products />
+      },
+      {
+        path:'/products/new',
+        element: <ProductForm key="productCreate" />
+      },
+      {
+        path:'/products/:id',
+        element: <ProductForm key="productUpdate" />
+      },
     ]
   },
   {
