@@ -10,6 +10,7 @@ use App\Models\Gaun;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
+use App\Models\ProductImage;
 use App\Services\IdGenerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -25,12 +26,16 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        $perPage = $request->query('perPage', 10);
-        $page = $request->query('page', 1);
-        $search = $request->query('search', '');
-        $type = $request->query('type', '');
+        // Retrieve query parameters
+        $perPage = $request->query('perPage', 10); // Default per page limit
+        $page = $request->query('page', 1); // Default page number
+        $search = $request->query('search', ''); // Search term
+        $type = $request->query('type', ''); // Product type filter
+
+        // Start building the base query
         $query = Product::query();
 
+        // Apply filters based on query parameters
         if ($type) {
             $query->where('type', $type);
         }
@@ -39,12 +44,16 @@ class ProductController extends Controller
             $query->where('product_id', 'LIKE', "%{$search}%");
         }
 
-        $products = $query->with(['kebaya', 'beskap', 'gaun'])
-            ->orderBy('id', 'desc')
-            ->paginate($perPage, ['*'], 'page', $page);
+        // Eager load relationships if defined in Product model
+        $query->with(['kebaya', 'beskap', 'gaun']);
 
+        // Paginate the results
+        $products = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
+
+        // Return paginated collection using ProductResource for consistent formatting
         return ProductResource::collection($products);
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -55,23 +64,19 @@ class ProductController extends Controller
     public function store(StoreProductRequest $request): JsonResponse
     {
         $attributes = $request->all();
-
-        // Generate the product ID
+        $path = $request->file('img')->store('images', 'public');
         $productId = IdGenerationService::generateProductId($request->type, $attributes);
-        Log::info("Generated Product ID: " . $productId);
 
-        // Create the product
+
         $product = Product::create([
             'id' => $productId,
             'type' => $request->type,
         ]);
 
-        // Ensure the product creation was successful
         if (!$product) {
             return response()->json(['error' => 'Product creation failed'], 500);
         }
 
-        // Create the related model based on the product type
         switch ($product->type) {
             case 'kebaya':
                 Kebaya::create([
@@ -95,6 +100,12 @@ class ProductController extends Controller
                 ]);
                 break;
         }
+
+        ProductImage::create([
+            'product_id' => $productId,
+            'path' => $path
+        ]);
+
 
         return response()->json(new ProductResource($product->load(['kebaya', 'beskap', 'gaun'])), 201);
     }

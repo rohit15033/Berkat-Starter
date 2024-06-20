@@ -25,6 +25,7 @@ class UpdateProductRequest extends FormRequest
     {
         $rules = [
             'type' => 'required|string|in:kebaya,beskap,gaun',
+            'img_path' => 'required|image|mimes:jpeg,png,jpg,gif,svg',
         ];
 
         switch ($this->type) {
