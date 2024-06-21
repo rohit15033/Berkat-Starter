@@ -7,12 +7,6 @@ export default function ProductForm() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
-  const [product, setProduct] = useState({
-    id: null,
-    type: "",
-    colour: "",
-    length: ""
-  });
   const [errors, setErrors] = useState(null);
   const { setNotification } = useStateContext();
 

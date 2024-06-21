@@ -9,6 +9,12 @@ class Product extends Model
 {
     use HasFactory;
 
+    protected $primaryKey = 'id'; // Specify the primary key
+
+    protected $keyType = 'string'; // Specify the key type
+
+    public $incrementing = false; // Disable auto-incrementing
+
     protected $fillable = ['id', 'type'];
 
     public function kebaya()
@@ -24,5 +30,9 @@ class Product extends Model
     public function gaun()
     {
         return $this->hasOne(Gaun::class, 'product_id', 'id');
+    }
+    public function productImages()
+    {
+        return $this->hasMany(ProductImage::class, 'product_id', 'id');
     }
 }

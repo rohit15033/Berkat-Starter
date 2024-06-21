@@ -11,6 +11,11 @@ class ProductImage extends Model
 
     protected $fillable = ['product_id', 'path'];
 
+    /**
+     * Define the relationship between ProductImage and Product.
+     *
+     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
+     */
     public function product()
     {
         return $this->belongsTo(Product::class, 'product_id', 'id');

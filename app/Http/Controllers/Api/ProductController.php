@@ -14,6 +14,7 @@ use App\Models\ProductImage;
 use App\Services\IdGenerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class ProductController extends Controller
@@ -26,34 +27,38 @@ class ProductController extends Controller
      */
     public function index(Request $request)
     {
-        // Retrieve query parameters
-        $perPage = $request->query('perPage', 10); // Default per page limit
-        $page = $request->query('page', 1); // Default page number
-        $search = $request->query('search', ''); // Search term
-        $type = $request->query('type', ''); // Product type filter
+        $perPage = $request->query('perPage', 10);
+        $page = $request->query('page', 1);
+        $search = $request->query('search', '');
+        $type = $request->query('type', '');
 
-        // Start building the base query
         $query = Product::query();
 
-        // Apply filters based on query parameters
         if ($type) {
             $query->where('type', $type);
         }
 
         if ($search) {
-            $query->where('product_id', 'LIKE', "%{$search}%");
+            $query->where('id', 'LIKE', "%{$search}%");
         }
 
-        // Eager load relationships if defined in Product model
-        $query->with(['kebaya', 'beskap', 'gaun']);
+        // Eager load relationships based on product type
+        $query->when($type === 'kebaya', function ($query) {
+            $query->with('kebaya');
+        })
+            ->when($type === 'beskap', function ($query) {
+                $query->with('beskap');
+            })
+            ->when($type === 'gaun', function ($query) {
+                $query->with('gaun');
+            })
+            ->with('productImages'); // Eager load product images
 
         // Paginate the results
         $products = $query->orderBy('id', 'desc')->paginate($perPage, ['*'], 'page', $page);
 
-        // Return paginated collection using ProductResource for consistent formatting
         return ProductResource::collection($products);
     }
-
 
     /**
      * Store a newly created resource in storage.
@@ -63,51 +68,76 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): JsonResponse
     {
-        $attributes = $request->all();
-        $path = $request->file('img')->store('images', 'public');
-        $productId = IdGenerationService::generateProductId($request->type, $attributes);
+        // Validate and get all request attributes
+        $attributes = $request->validated();
 
+        // Generate product ID based on type and other attributes
+        $productId = IdGenerationService::generateProductId($attributes['type'], $attributes);
 
-        $product = Product::create([
-            'id' => $productId,
-            'type' => $request->type,
-        ]);
+        // Begin a transaction to ensure data consistency
+        DB::beginTransaction();
 
-        if (!$product) {
-            return response()->json(['error' => 'Product creation failed'], 500);
+        try {
+            // Store each image and collect their paths
+            $imagePaths = [];
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('images', 'public');
+                    $imagePaths[] = $path;
+                }
+            }
+
+            // Create the product with basic attributes
+            $product = Product::create([
+                'id' => $productId,
+                'type' => $attributes['type'],
+            ]);
+
+            // Handle specific product types
+            switch ($attributes['type']) {
+                case 'kebaya':
+                    Kebaya::create([
+                        'product_id' => $productId,
+                        'colour' => $attributes['colour'],
+                        'length' => $attributes['length']
+                    ]);
+                    break;
+                case 'beskap':
+                    Beskap::create([
+                        'product_id' => $productId,
+                        'adat' => $attributes['adat'],
+                        'colour' => $attributes['colour']
+                    ]);
+                    break;
+                case 'gaun':
+                    Gaun::create([
+                        'product_id' => $productId,
+                        'colour' => $attributes['colour'],
+                        'length' => $attributes['length']
+                    ]);
+                    break;
+            }
+
+            // Associate product with its images
+            foreach ($imagePaths as $path) {
+                ProductImage::create([
+                    'product_id' => $productId,
+                    'path' => $path
+                ]);
+            }
+
+            // Commit the transaction
+            DB::commit();
+
+            // Return success response with the created product
+            return response()->json(['message' => 'Product created successfully', 'product' => $product], 201);
+        } catch (\Exception $e) {
+            // Rollback the transaction on exception
+            DB::rollBack();
+
+            // Log or handle the exception as needed
+            return response()->json(['error' => 'Product creation failed', 'message' => $e->getMessage()], 500);
         }
-
-        switch ($product->type) {
-            case 'kebaya':
-                Kebaya::create([
-                    'product_id' => $productId,
-                    'colour' => $request->colour,
-                    'length' => $request->length
-                ]);
-                break;
-            case 'beskap':
-                Beskap::create([
-                    'product_id' => $productId,
-                    'adat' => $request->adat,
-                    'colour' => $request->colour
-                ]);
-                break;
-            case 'gaun':
-                Gaun::create([
-                    'product_id' => $productId,
-                    'colour' => $request->colour,
-                    'length' => $request->length
-                ]);
-                break;
-        }
-
-        ProductImage::create([
-            'product_id' => $productId,
-            'path' => $path
-        ]);
-
-
-        return response()->json(new ProductResource($product->load(['kebaya', 'beskap', 'gaun'])), 201);
     }
 
     /**
@@ -128,33 +158,90 @@ class ProductController extends Controller
      * @param  \App\Models\Product  $product
      * @return \Illuminate\Http\Response
      */
-    public function update(UpdateProductRequest $request, Product $product)
+    public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $attributes = $request->all();
+        $attributes = $request->validated();
 
-        switch ($product->type) {
-            case 'kebaya':
-                $product->kebaya->update([
-                    'colour' => $request->colour,
-                    'length' => $request->length
-                ]);
-                break;
-            case 'beskap':
-                $product->beskap->update([
-                    'adat' => $request->adat,
-                    'colour' => $request->colour
-                ]);
-                break;
-            case 'gaun':
-                $product->gaun->update([
-                    'colour' => $request->colour,
-                    'length' => $request->length
-                ]);
-                break;
+        DB::beginTransaction();
+
+        try {
+            // Update the related model based on product type
+            switch ($product->type) {
+                case 'kebaya':
+                    if (isset($attributes['colour']) && isset($attributes['length'])) {
+                        $product->kebaya->update([
+                            'colour' => $attributes['colour'],
+                            'length' => $attributes['length'],
+                        ]);
+                    } else {
+                        throw new \Exception("Missing required attributes for kebaya.");
+                    }
+                    break;
+                case 'beskap':
+                    if (isset($attributes['adat']) && isset($attributes['colour'])) {
+                        $product->beskap->update([
+                            'adat' => $attributes['adat'],
+                            'colour' => $attributes['colour'],
+                        ]);
+                    } else {
+                        throw new \Exception("Missing required attributes for beskap.");
+                    }
+                    break;
+                case 'gaun':
+                    if (isset($attributes['colour']) && isset($attributes['length'])) {
+                        $product->gaun->update([
+                            'colour' => $attributes['colour'],
+                            'length' => $attributes['length'],
+                        ]);
+                    } else {
+                        throw new \Exception("Missing required attributes for gaun.");
+                    }
+                    break;
+                default:
+                    throw new \Exception("Unknown product type.");
+            }
+
+            // Handle image uploads
+            if ($request->hasFile('images')) {
+                // Delete existing images if needed
+                if ($request->has('delete_existing_images') && $request->delete_existing_images) {
+                    foreach ($product->productImages as $productImage) {
+                        // Delete the image file from storage
+                        \Storage::disk('public')->delete($productImage->path);
+                        // Delete the image record from the database
+                        $productImage->delete();
+                    }
+                }
+
+                // Store new images and create their paths
+                $imagePaths = [];
+                foreach ($request->file('images') as $image) {
+                    $path = $image->store('images', 'public');
+                    $imagePaths[] = $path;
+                }
+
+                // Associate new images with the product
+                foreach ($imagePaths as $path) {
+                    ProductImage::create([
+                        'product_id' => $product->id,
+                        'path' => $path,
+                    ]);
+                }
+            }
+
+            DB::commit();
+
+            return response()->json([
+                'message' => 'Product updated successfully',
+                'product' => new ProductResource($product->load(['kebaya', 'beskap', 'gaun', 'productImages'])),
+            ], 200);
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return response()->json(['error' => 'Product update failed', 'message' => $e->getMessage()], 500);
         }
-
-        return response()->json(new ProductResource($product->load(['kebaya', 'beskap', 'gaun'])));
     }
+
+
 
     /**
      * Remove the specified resource from storage.
