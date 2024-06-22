@@ -3,9 +3,11 @@ import { useEffect, useState } from "react";
 import axiosClient from "../../axios-client.js";
 import { useStateContext } from "../../context/ContextProvider.jsx";
 
-export default function ProductForm() {
+const ProductForm = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { setNotification } = useStateContext();
+
   const [loading, setLoading] = useState(false);
   const [product, setProduct] = useState({
     id: null,
@@ -16,66 +18,12 @@ export default function ProductForm() {
     images: [],
   });
   const [errors, setErrors] = useState(null);
-  const { setNotification } = useStateContext();
   const [imagePreviews, setImagePreviews] = useState([]);
   const [selectedImageIndex, setSelectedImageIndex] = useState(null);
 
-  const kebayaAttributes = {
-    colour: "",
-    length: "",
-  };
-
-  const gaunAttributes = {
-    colour: "",
-    length: "",
-  };
-
-  const beskapAttributes = {
-    colour: "",
-    adat: "",
-  };
-
-  const onSubmit = (ev) => {
-    ev.preventDefault();
-
-    const formData = new FormData();
-    formData.append("type", product.type);
-
-    if (product.type === "beskap") {
-      formData.append("adat", product.adat);
-      formData.append("colour", product.colour);
-    } else if (product.type === "kebaya" || product.type === "gaun") {
-      formData.append("colour", product.colour);
-      formData.append("length", product.length);
-    }
-
-    for (let i = 0; i < product.images.length; i++) {
-      formData.append(`images[${i}]`, product.images[i]);
-    }
-
-    const requestMethod = product.id
-      ? axiosClient.put(`/products/${product.id}`, formData)
-      : axiosClient.post(`/products`, formData);
-
-    setLoading(true);
-    requestMethod
-      .then(() => {
-        const message = product.id
-          ? "Product has been updated successfully"
-          : "Product has been created successfully";
-        setNotification(message);
-        navigate("/products");
-      })
-      .catch((err) => {
-        const response = err.response;
-        if (response && response.status === 422) {
-          setErrors(response.data.errors);
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
+  const kebayaAttributes = { colour: "", length: "" };
+  const gaunAttributes = { colour: "", length: "" };
+  const beskapAttributes = { colour: "", adat: "" };
 
   useEffect(() => {
     if (id) {
@@ -87,9 +35,9 @@ export default function ProductForm() {
           setProduct({
             id: data.id,
             type: data.type,
-            colour: data.attributes.colour,
-            length: data.attributes.length,
-            adat: data.attributes.adat,
+            colour: data.attributes?.colour || "",
+            length: data.attributes?.length || "",
+            adat: data.attributes?.adat || "",
             images: [],
           });
           setImagePreviews(
@@ -103,6 +51,55 @@ export default function ProductForm() {
         });
     }
   }, [id]);
+
+  const onSubmit = async (ev) => {
+    ev.preventDefault();
+    setLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("type", product.type);
+
+      if (product.type === "beskap") {
+        formData.append("adat", product.adat);
+        formData.append("colour", product.colour);
+      } else if (product.type === "kebaya" || product.type === "gaun") {
+        formData.append("colour", product.colour);
+        formData.append("length", product.length);
+      }
+
+      for (let i = 0; i < product.images.length; i++) {
+        formData.append(`images[${i}]`, product.images[i]);
+      }
+
+      // Log FormData entries
+      for (let [key, value] of formData.entries()) {
+        console.log(`${key}:`, value);
+      }
+
+      let response;
+      if (id) {
+        response = await axiosClient.put(`/products/${id}`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      } else {
+        response = await axiosClient.post(`/products`, formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      }
+
+      setNotification(response.data.message);
+      navigate("/products");
+    } catch (error) {
+      if (error.response && error.response.status === 422) {
+        setErrors(error.response.data.errors);
+      } else {
+        console.error("Error:", error);
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleFileChange = (e) => {
     const filesArray = Array.from(e.target.files);
@@ -126,32 +123,35 @@ export default function ProductForm() {
   };
 
   const renderFormFields = () => {
-    let attributes = {};
-    if (product.type === "kebaya") {
-      attributes = kebayaAttributes;
-    } else if (product.type === "gaun") {
-      attributes = gaunAttributes;
-    } else if (product.type === "beskap") {
-      attributes = beskapAttributes;
-    }
+    if (!id) { // Only render form fields if adding a new product
+      let attributes = {};
+      if (product.type === "kebaya") {
+        attributes = kebayaAttributes;
+      } else if (product.type === "gaun") {
+        attributes = gaunAttributes;
+      } else if (product.type === "beskap") {
+        attributes = beskapAttributes;
+      }
 
-    return Object.keys(attributes).map((key) => (
-      <div className="mb-3" key={key}>
-        <label htmlFor={key} className="form-label">
-          {key.charAt(0).toUpperCase() + key.slice(1)}
-        </label>
-        <input
-          type="text"
-          id={key}
-          name={key}
-          value={product[key]}
-          onChange={(ev) => setProduct({ ...product, [key]: ev.target.value })}
-          placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
-          className="form-control"
-          required
-        />
-      </div>
-    ));
+      return Object.keys(attributes).map((key) => (
+        <div className="mb-3" key={key}>
+          <label htmlFor={key} className="form-label">
+            {key.charAt(0).toUpperCase() + key.slice(1)}
+          </label>
+          <input
+            type="text"
+            id={key}
+            name={key}
+            value={product[key]}
+            onChange={(ev) => setProduct({ ...product, [key]: ev.target.value })}
+            placeholder={key.charAt(0).toUpperCase() + key.slice(1)}
+            className="form-control"
+            required
+          />
+        </div>
+      ));
+    }
+    return null; // Return null if editing
   };
 
   const handleImageClick = (index) => {
@@ -173,7 +173,7 @@ export default function ProductForm() {
     <div className="container mt-4">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <h1 className="mb-4">{product.id ? "Edit Product" : "Add Product"}</h1>
+          <h1 className="mb-4">{product.id ? `Edit Product (${product.id})` : "Add Product"}</h1>
           {errors && (
             <div className="alert alert-danger">
               {Object.values(errors).map((error, idx) => (
@@ -189,30 +189,30 @@ export default function ProductForm() {
             </div>
           ) : (
             <form onSubmit={onSubmit} encType="multipart/form-data">
-              <div className="mb-3">
-                <label htmlFor="type" className="form-label">
-                  Type
-                </label>
-                <select
-                  id="type"
-                  name="type"
-                  value={product.type}
-                  onChange={(ev) =>
-                    setProduct({ ...product, type: ev.target.value })
-                  }
-                  className="form-select"
-                  required
-                >
-                  <option value="" disabled>
-                    Select Product Type
-                  </option>
-                  <option value="kebaya">Kebaya</option>
-                  <option value="beskap">Beskap</option>
-                  <option value="gaun">Gaun</option>
-                </select>
-              </div>
-
-              {product.type && renderFormFields()}
+              {!id && (  // Only show type selection if adding a new product
+                <div className="mb-3">
+                  <label htmlFor="type" className="form-label">
+                    Type
+                  </label>
+                  <select
+                    id="type"
+                    name="type"
+                    value={product.type}
+                    onChange={(ev) =>
+                      setProduct({ ...product, type: ev.target.value })
+                    }
+                    className="form-select"
+                    required
+                  >
+                    <option value="" disabled>
+                      Select Product Type
+                    </option>
+                    <option value="kebaya">Kebaya</option>
+                    <option value="beskap">Beskap</option>
+                    <option value="gaun">Gaun</option>
+                  </select>
+                </div>
+              )}
 
               <div className="mb-3">
                 <label htmlFor="image" className="form-label link-primary">
@@ -226,7 +226,7 @@ export default function ProductForm() {
                   className="form-control"
                   multiple
                   style={{ display: "none" }}
-                  required={!product.id}
+                  required={!id}
                 />
               </div>
 
@@ -262,6 +262,8 @@ export default function ProductForm() {
                 </div>
               )}
 
+              {renderFormFields()}
+
               <button
                 type="submit"
                 className="btn btn-primary w-100"
@@ -275,4 +277,6 @@ export default function ProductForm() {
       </div>
     </div>
   );
-}
+};
+
+export default ProductForm;

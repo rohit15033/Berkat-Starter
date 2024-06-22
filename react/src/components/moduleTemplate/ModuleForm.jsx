@@ -1,113 +1,154 @@
-import { useNavigate, useParams } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import axiosClient from "../../axios-client.js";
+import { useParams, useNavigate } from "react-router-dom";
 import { useStateContext } from "../../context/ContextProvider.jsx";
 
-export default function ProductForm() {
-  const { id } = useParams();
-  const navigate = useNavigate();
+export default function ModuleForm({ endpoint, entityName, fields, foreignEntity }) {
+  const [data, setData] = useState({});
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState(null);
+  const { id } = useParams();
+  const navigate = useNavigate();
   const { setNotification } = useStateContext();
-
-  const onSubmit = (ev) => {
-    ev.preventDefault();
-
-    if (product.id) {
-      axiosClient.put(`/products/${product.id}`, product)
-        .then(() => {
-          setNotification("Product has been updated successfully");
-          navigate('/products');
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
-        });
-    } else {
-      axiosClient.post(`/products`, product)
-        .then(() => {
-          setNotification("Product has been created successfully");
-          navigate('/products');
-        })
-        .catch((err) => {
-          const response = err.response;
-          if (response && response.status === 422) {
-            setErrors(response.data.errors);
-          }
-        });
-    }
-  };
 
   useEffect(() => {
     if (id) {
       setLoading(true);
-      axiosClient.get(`/products/${id}`)
+      axiosClient.get(`${endpoint}/${id}`)
         .then(({ data }) => {
+          setData(data);
           setLoading(false);
-          setProduct(data);
         })
-        .catch(() => {
+        .catch((error) => {
           setLoading(false);
+          setErrors(error.response ? error.response.data : { message: "An error occurred" });
         });
     }
-  }, [id]);
+  }, [id, endpoint]);
+
+  const onSubmit = (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setErrors(null); // Clear previous errors
+    const submitData = { ...data };
+
+    if (id) {
+      delete submitData[foreignEntity];
+      axiosClient.put(`${endpoint}/${id}`, submitData)
+        .then(() => {
+          setNotification(`${entityName} was successfully updated`);
+          navigate(`/${entityName.toLowerCase()}s`); // Redirect to pluralized entity name
+        })
+        .catch((error) => {
+          setLoading(false);
+          setErrors(error.response ? error.response.data : { message: "An error occurred" });
+        });
+    } else {
+      axiosClient.post(endpoint, submitData)
+        .then(() => {
+          setNotification(`${entityName} was successfully created`);
+          navigate(`/${entityName.toLowerCase()}s`); // Redirect to pluralized entity name
+        })
+        .catch((error) => {
+          setLoading(false);
+          setErrors(error.response ? error.response.data : { message: "An error occurred" });
+        });
+    }
+  };
+
+  const toDateTimeLocal = (dateTimeString) => {
+    const [date, time] = dateTimeString.split(' ');
+    const [day, month, year] = date.split('-');
+    return `${year}-${month}-${day}T${time}`;
+  };
+
+  const toOriginalFormat = (dateTimeLocalString) => {
+    const [date, time] = dateTimeLocalString.split('T');
+    const [year, month, day] = date.split('-');
+    return `${day}-${month}-${year} ${time}`;
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type } = e.target;
+    setData(prevData => {
+      // If the field type is datetime-local, convert the value to the original format
+      const newValue = type === "datetime-local" ? toOriginalFormat(value) : value;
+      return { ...prevData, [name]: newValue };
+    });
+  };
+
+  const dataMapper = (item) => {
+    const mappedItem = { ...item };
+    if (foreignEntity && item[foreignEntity] && item[foreignEntity].length > 0) {
+      mappedItem["customer_name"] = item[foreignEntity][0].name; // Update field name
+      mappedItem["customer_phone"] = item[foreignEntity][0].phone; // Update field name
+    }
+
+    // Convert datetime fields to datetime-local format
+    fields.forEach(field => {
+      if (field.type === "datetime-local" && mappedItem[field.key]) {
+        mappedItem[field.key] = toDateTimeLocal(mappedItem[field.key]);
+      }
+    });
+
+    return mappedItem;
+  };
+
+  const mappedData = dataMapper(data);
 
   return (
     <div className="container mt-4">
       <div className="row justify-content-center">
         <div className="col-md-8">
-          <h1 className="mb-4">{product.id ? "Edit Product" : "Add Product"}</h1>
-          {errors && (
+          <h1 className="mb-4">{id ? `Edit ${entityName}` : `Add ${entityName}`}</h1>
+          {errors && errors.errors && (
             <div className="alert alert-danger">
               <ul>
-                {Object.keys(errors).map((key) => (
-                  <li key={key}>{errors[key][0]}</li>
+                {Object.entries(errors.errors).map(([key, messages]) => (
+                  <li key={key}>
+                    {messages.map((message) => (
+                      <span key={message}>{message}</span>
+                    ))}
+                  </li>
                 ))}
               </ul>
             </div>
           )}
           <form onSubmit={onSubmit}>
-            <div className="mb-3">
-              <label htmlFor="type" className="form-label">Type</label>
-              <select
-                id="type"
-                name="type"
-                value={product.type}
-                onChange={ev => setProduct({ ...product, type: ev.target.value })}
-                className="form-select"
-              >
-                <option value="" disabled>Select Product Type</option>
-                <option value="kebaya">Kebaya</option>
-                <option value="beskap">Beskap</option>
-                <option value="gaun">Gaun</option>
-              </select>
-            </div>
-            <div className="mb-3">
-              <label htmlFor="colour" className="form-label">Colour</label>
-              <input
-                type="text"
-                id="colour"
-                name="colour"
-                value={product.colour}
-                onChange={ev => setProduct({ ...product, colour: ev.target.value })}
-                placeholder="Colour"
-                className="form-control"
-              />
-            </div>
-            <div className="mb-3">
-              <label htmlFor="length" className="form-label">Length</label>
-              <input
-                type="text"
-                id="length"
-                name="length"
-                value={product.length}
-                onChange={ev => setProduct({ ...product, length: ev.target.value })}
-                placeholder="Length"
-                className="form-control"
-              />
-            </div>
+            {fields.map((field) => (
+              <div key={field.key} className="mb-3">
+                <label htmlFor={field.key} className="form-label">{field.label}</label>
+                {field.type === "select" ? (
+                  <select
+                    id={field.key}
+                    name={field.key}
+                    value={mappedData[field.key] || ""}
+                    onChange={handleChange}
+                    className="form-select"
+                  >
+                    <option value="" disabled>
+                      {field.placeholder}
+                    </option>
+                    {field.options.map((option) => (
+                      <option key={option.value} value={option.value}>
+                        {option.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <input
+                    type={field.type || "text"}
+                    id={field.key}
+                    name={field.key}
+                    value={mappedData[field.key] || ""}
+                    onChange={handleChange}
+                    placeholder={field.placeholder}
+                    className="form-control"
+                    disabled={id && field.key.startsWith(foreignEntity)}
+                  />
+                )}
+              </div>
+            ))}
             <button type="submit" className="btn btn-primary w-100" disabled={loading}>
               {loading ? "Saving..." : "Save"}
             </button>

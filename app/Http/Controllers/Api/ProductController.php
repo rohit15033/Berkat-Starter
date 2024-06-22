@@ -68,6 +68,12 @@ class ProductController extends Controller
      */
     public function store(StoreProductRequest $request): JsonResponse
     {
+        // Log the request data
+        \Log::info('Update Product Request Data:', [
+            'request_all' => $request->all(),
+            'request_files' => $request->file('images'),
+        ]);
+
         // Validate and get all request attributes
         $attributes = $request->validated();
 
@@ -160,50 +166,18 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product): JsonResponse
     {
-        $attributes = $request->validated();
+        // Log the request data
+        \Log::info('Update Product Request Data:', [
+            'request_all' => $request->all(),
+            'request_files' => $request->file('images'),
+        ]);
 
         DB::beginTransaction();
 
         try {
-            // Update the related model based on product type
-            switch ($product->type) {
-                case 'kebaya':
-                    if (isset($attributes['colour']) && isset($attributes['length'])) {
-                        $product->kebaya->update([
-                            'colour' => $attributes['colour'],
-                            'length' => $attributes['length'],
-                        ]);
-                    } else {
-                        throw new \Exception("Missing required attributes for kebaya.");
-                    }
-                    break;
-                case 'beskap':
-                    if (isset($attributes['adat']) && isset($attributes['colour'])) {
-                        $product->beskap->update([
-                            'adat' => $attributes['adat'],
-                            'colour' => $attributes['colour'],
-                        ]);
-                    } else {
-                        throw new \Exception("Missing required attributes for beskap.");
-                    }
-                    break;
-                case 'gaun':
-                    if (isset($attributes['colour']) && isset($attributes['length'])) {
-                        $product->gaun->update([
-                            'colour' => $attributes['colour'],
-                            'length' => $attributes['length'],
-                        ]);
-                    } else {
-                        throw new \Exception("Missing required attributes for gaun.");
-                    }
-                    break;
-                default:
-                    throw new \Exception("Unknown product type.");
-            }
-
-            // Handle image uploads
+            // Handle image uploads and deletions
             if ($request->hasFile('images')) {
-                // Delete existing images if needed
+                // Optionally delete existing images if requested
                 if ($request->has('delete_existing_images') && $request->delete_existing_images) {
                     foreach ($product->productImages as $productImage) {
                         // Delete the image file from storage
@@ -232,14 +206,19 @@ class ProductController extends Controller
             DB::commit();
 
             return response()->json([
-                'message' => 'Product updated successfully',
-                'product' => new ProductResource($product->load(['kebaya', 'beskap', 'gaun', 'productImages'])),
+                'message' => 'Product images updated successfully',
+                'product' => new ProductResource($product->fresh()->load(['productImages'])),
             ], 200);
         } catch (\Exception $e) {
             DB::rollBack();
-            return response()->json(['error' => 'Product update failed', 'message' => $e->getMessage()], 500);
+
+            // Log the exception
+            \Log::error('Product update failed:', ['exception' => $e]);
+
+            return response()->json(['error' => 'Product images update failed', 'message' => $e->getMessage()], 500);
         }
     }
+
 
 
 

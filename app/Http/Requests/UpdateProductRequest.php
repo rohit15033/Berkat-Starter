@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
@@ -23,26 +22,9 @@ class UpdateProductRequest extends FormRequest
      */
     public function rules()
     {
-        $rules = [
-            'type' => 'required|string|in:kebaya,beskap,gaun',
-            'images' => 'required',
+        return [
+            'images' => 'array',
+            'images.*' => 'image', // Ensure each uploaded file is an image
         ];
-
-        switch ($this->type) {
-            case 'kebaya':
-                $rules['colour'] = 'required|string|max:255';
-                $rules['length'] = 'required|string|max:255';
-                break;
-            case 'beskap':
-                $rules['adat'] = 'required|string|max:255';
-                $rules['colour'] = 'required|string|max:255';
-                break;
-            case 'gaun':
-                $rules['colour'] = 'required|string|max:255';
-                $rules['length'] = 'required|string|max:255';
-                break;
-        }
-
-        return $rules;
     }
 }
