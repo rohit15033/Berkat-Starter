@@ -9,13 +9,13 @@ class Product extends Model
 {
     use HasFactory;
 
-    protected $primaryKey = 'id'; // Specify the primary key
+    protected $primaryKey = 'id';
 
-    protected $keyType = 'string'; // Specify the key type
+    protected $keyType = 'string';
 
-    public $incrementing = false; // Disable auto-incrementing
+    public $incrementing = false;
 
-    protected $fillable = ['id', 'type'];
+    protected $fillable = ['id', 'type', 'status'];
 
     public function kebaya()
     {
@@ -34,5 +34,9 @@ class Product extends Model
     public function productImages()
     {
         return $this->hasMany(ProductImage::class, 'product_id', 'id');
+    }
+    public function invoices()
+    {
+        return $this->belongsToMany(Invoice::class, 'invoice_products', 'product_id', 'invoice_id')->withPivot('price', 'discount');;
     }
 }
