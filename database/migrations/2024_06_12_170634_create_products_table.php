@@ -10,7 +10,6 @@ class CreateProductsTable extends Migration
         Schema::create('products', function (Blueprint $table) {
             $table->string('id')->primary();
             $table->string('type');
-            $table->string('status');
             $table->timestamps();
         });
     }

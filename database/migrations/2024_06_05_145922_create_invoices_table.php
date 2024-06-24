@@ -14,15 +14,10 @@ return new class extends Migration
     public function up()
     {
         Schema::create('invoices', function (Blueprint $table) {
-            $table->string('id')->primary();
+            $table->id();
             $table->timestamps();
-            $table->dateTime('date');
-            $table->text('detail');
-            $table->string('marketing');
-            $table->decimal('amount_paid', 11, 2)->nullable();
-            $table->decimal('discount', 11, 2)->nullable();
-            $table->string('type');
-            $table->string('status');
+            $table->string('name');
+            $table->dateTime('time');
         });
     }
 

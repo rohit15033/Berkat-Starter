@@ -11,7 +11,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\StoreProductRequest;
 use App\Http\Requests\UpdateProductRequest;
 use App\Models\ProductImage;
-use App\Services\ProductIdGenerationService;
+use App\Services\IdGenerationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -78,7 +78,7 @@ class ProductController extends Controller
         $attributes = $request->validated();
 
         // Generate product ID based on type and other attributes
-        $productId = ProductIdGenerationService::generateProductId($attributes['type'], $attributes);
+        $productId = IdGenerationService::generateProductId($attributes['type'], $attributes);
 
         // Begin a transaction to ensure data consistency
         DB::beginTransaction();

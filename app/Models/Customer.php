@@ -15,8 +15,4 @@ class Customer extends Model
     public function appointments(){
         return $this->belongsToMany(Appointment::class, 'customers_appointments');
     }
-    public function invoices()
-    {
-        return $this->belongsToMany(Invoice::class, 'customer_invoices', 'invoice_id', 'customer_id');
-    }
 }
