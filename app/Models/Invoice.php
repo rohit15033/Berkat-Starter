@@ -1,30 +1,38 @@
 <?php
+namespace App\Models;
 
-    namespace App\Models;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
 
-    use Illuminate\Database\Eloquent\Factories\HasFactory;
-    use Illuminate\Database\Eloquent\Model;
+class Invoice extends Model
+{
+    use HasFactory;
 
-    class Invoice extends Model
+    protected $primaryKey = 'id';
+    public $incrementing = false;
+    protected $keyType = 'string';
+
+    protected $fillable = [
+        'id', 'date', 'due', 'detail', 'marketing',  'discount', 'price', 'status'
+    ];
+
+    public function customers()
     {
-        use HasFactory;
-
-        protected $primaryKey = 'id';
-
-        protected $keyType = 'string';
-
-        public $incrementing = false;
-
-        protected $fillable = ['id', 'date','detail','marketing', 'type', 'status'];
-
-
-        public function products()
-        {
-            return $this->belongsToMany(Product::class, 'invoice_products', 'invoice_id', 'product_id')->withPivot('price', 'discount');;
-        }
-
-        public function customers()
-        {
-            return $this->belongsToMany(Customer::class, 'customer_invoices', 'customer_id', 'invoice_id');
-        }
+        return $this->belongsToMany(Customer::class, 'customer_invoices', 'invoice_id', 'customer_id');
     }
+
+    public function orders()
+    {
+        return $this->hasMany(Order::class);
+    }
+
+    public function calculatePrice()
+    {
+        return $this->orders->sum('price');
+    }
+
+    public function payments()
+    {
+        return $this->belongsToMany(Payment::class, 'invoice_payments', 'invoice_id', 'payment_id');
+    }
+}
