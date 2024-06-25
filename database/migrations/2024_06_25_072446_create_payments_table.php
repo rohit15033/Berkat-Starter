@@ -13,16 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('invoices', function (Blueprint $table) {
+        Schema::create('payments', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->date('date');
-            $table->decimal('due', 11, 2);
-            $table->text('detail')->nullable();
-            $table->string('marketing');
-            $table->decimal('price', 11, 2)->nullable();
-            $table->string('status');
-            $table->decimal('discount', 11, 2)->nullable();
+            $table->decimal('amount',11, 2);
+            $table->string('method');
+            $table->string('path');
         });
     }
 
@@ -33,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('invoices');
+        Schema::dropIfExists('payments');
     }
 };
