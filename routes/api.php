@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\CustomerController;
 use App\Http\Controllers\Api\ProductController;
 use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Api\InvoiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -29,6 +30,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('/appointments',AppointmentController::class);
     Route::apiResource('/customers',CustomerController::class);
     Route::apiResource('/products',ProductController::class);
+    Route::apiResource('/invoices',InvoiceController::class);
 });
 
 Route::post('/signup', [AuthController::class, 'signup']);

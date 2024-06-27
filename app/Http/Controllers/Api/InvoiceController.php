@@ -1,5 +1,5 @@
 <?php
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
 use App\Http\Requests\StoreInvoiceRequest;
 use App\Http\Requests\UpdateInvoiceRequest;
@@ -7,6 +7,7 @@ use App\Http\Resources\InvoiceResource;
 use App\Models\Invoice;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use App\Http\Controllers\Controller;
 
 class InvoiceController extends Controller
 {
@@ -18,10 +19,18 @@ class InvoiceController extends Controller
     public function store(StoreInvoiceRequest $request)
     {
         $invoice = DB::transaction(function () use ($request) {
+            // Calculate total due based on orders
+            $totalDue = 0;
+            foreach ($request->orders as $orderData) {
+                $orderPrice = $orderData['price'] ?? 0;
+                $orderDiscount = $orderData['discount'] ?? 0;
+                $totalDue += $orderPrice - $orderDiscount;
+            }
+
             $invoice = Invoice::create([
                 'id' => Str::uuid(),
                 'date' => $request->date,
-                'due' => $request->due,
+                'due' => $totalDue,
                 'detail' => $request->detail,
                 'marketing' => $request->marketing,
                 'status' => $request->status,

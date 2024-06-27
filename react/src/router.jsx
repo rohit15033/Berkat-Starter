@@ -16,8 +16,9 @@ import InvoicesForm from "./views/Invoice/InvoicesForm.jsx";
 import Kebayas from "./views/Inventory/Kebaya/Kebayas.jsx";
 import Beskaps from "./views/Inventory/Beskap/Beskaps.jsx";
 import Gauns from "./views/Inventory/Gaun/Gauns.jsx";
-import Products from "./views/Inventory/products.jsx"
-import ProductForm from "./views/Inventory/productForm.jsx"
+import Products from "./views/Inventory/products.jsx";
+import ProductForm from "./views/Inventory/productForm.jsx";
+import InvoicePage from "./views/InvoicePage/App.tsx";
 
 const router = createBrowserRouter([
   {
@@ -92,6 +93,22 @@ const router = createBrowserRouter([
         path:'/products/:id',
         element: <ProductForm key="productUpdate" />
       },
+      {
+        path:'/invoices',
+        element: <Invoices />
+      },
+      {
+        path:'/invoices/new',
+        element: <InvoicesForm key="invoiceCreate" />
+      },
+      {
+        path:'/invoices/:id',
+        element: <InvoicesForm key="invoiceUpdate" />
+      },
+      {
+        path:'invoicepage',
+        element: <InvoicePage />
+      }
     ]
   },
   {

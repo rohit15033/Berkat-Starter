@@ -1,17 +1,12 @@
 <?php
-
 namespace App\Http\Resources;
 
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class OrderResource extends JsonResource
 {
-    /**
-     * Transform the resource into an array.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return array<string, mixed>
-     */
+    public static $wrap = false;
+
     public function toArray($request)
     {
         return [
@@ -21,7 +16,7 @@ class OrderResource extends JsonResource
             'price' => $this->price,
             'discount' => $this->discount,
             'details' => $this->details,
-            'products' => OrderProductResource::collection($this->whenLoaded('products')),
+            'products' => ProductResource::collection($this->whenLoaded('products')),
         ];
     }
 }

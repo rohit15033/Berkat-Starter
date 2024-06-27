@@ -102,7 +102,7 @@ export default function Products() {
                   <td>{item.id}</td>
                   <td>{item.type}</td>
                   <td>
-                    {Object.keys(item.attributes).length > 0 && (
+                    {item.attributes && Object.keys(item.attributes).length > 0 && (
                       <ul>
                         {Object.entries(item.attributes).map(([key, value]) => (
                           <li key={key}>
@@ -113,7 +113,7 @@ export default function Products() {
                     )}
                   </td>
                   <td>
-                    {item.images.length > 0 ? (
+                    {item.images && item.images.length > 0 ? (
                       <div className="d-flex flex-wrap">
                         {item.images.map((image, index) => (
                           <img key={index} src={`${import.meta.env.VITE_API_BASE_URL}/storage/${image}`} alt={`Product Image ${index}`} style={{ maxWidth: "100px", maxHeight: "100px", margin: "5px" }} />

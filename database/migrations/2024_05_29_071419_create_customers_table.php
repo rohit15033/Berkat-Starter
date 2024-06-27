@@ -19,6 +19,12 @@ return new class extends Migration
 
     public function down()
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+
+        // Drop the invoices table
         Schema::dropIfExists('customers');
+
+        // Enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 };

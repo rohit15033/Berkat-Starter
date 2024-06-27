@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -16,7 +17,7 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->timestamps();
-            $table->unsignedBigInteger('invoice_id');
+            $table->string('invoice_id');
             $table->date('event_date')->nullable();
             $table->string('event_type')->nullable();
             $table->decimal('price', 11, 2)->nullable();
@@ -35,6 +36,12 @@ return new class extends Migration
      */
     public function down()
     {
+        DB::statement('SET FOREIGN_KEY_CHECKS = 0;');
+
+        // Drop the invoices table
         Schema::dropIfExists('orders');
+
+        // Enable foreign key checks
+        DB::statement('SET FOREIGN_KEY_CHECKS = 1;');
     }
 };

@@ -25,7 +25,6 @@ class StoreInvoiceRequest extends FormRequest
     {
         return [
             'date' => 'required|date',
-            'due' => 'required|numeric',
             'detail' => 'nullable|string',
             'marketing' => 'required|string',
             'status' => 'required|string',
