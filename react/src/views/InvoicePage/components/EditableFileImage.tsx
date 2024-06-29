@@ -86,7 +86,7 @@ const EditableFileImage: FC<Props> = ({ className, placeholder, value, width, on
   }
 
   return (
-    <div className={`image ${value ? 'mb-5' : ''} ${className ? className : ''}`}>
+    <div className={`image ${value ? 'mb-5-c' : ''} ${className ? className : ''}`}>
       {!value ? (
         <button
           type="button"
