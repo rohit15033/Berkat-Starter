@@ -31,7 +31,7 @@ interface Props {
 
 const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
     const [invoice, setInvoice] = useState<Invoice>(data ? { ...data, orders: data.orders || [] } : { ...initialInvoice });
-    const [subTotal, setSubTotal] = useState<number>();
+    const [subTotal, setSubTotal] = useState<number>(0);
 
     const dateFormat = 'MMM dd, yyyy';
     const invoiceDate = invoice.invoiceDate !== '' ? new Date(invoice.invoiceDate) : new Date();
@@ -58,7 +58,7 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
         }
     };
 
-    const handleOrderChange = (index: number, name: keyof Order, value: string) => {
+    const handleOrderChange = (index: number, name: keyof Order, value: string | number) => {
         const orders = invoice.orders.map((order, i) => {
             if (i === index) {
                 const newOrder = { ...order, [name]: value };
@@ -119,6 +119,8 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
     useEffect(() => {
         let subTotal = 0;
         (invoice.orders || []).forEach((order) => {
+            const orderSubtotal = (order.price || 0) - (order.discount || 0);
+            subTotal += orderSubtotal;
             (order.products || []).forEach((product) => {
                 const amount = (product.price || 0) - (product.discount || 0);
                 subTotal += amount;
@@ -294,75 +296,127 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
                 </View>
 
                 {(invoice.orders || []).map((order, orderIndex) => (
-                    <View key={orderIndex} className="order-section">
-                        <EditableInput
-                            placeholder="Event Date"
-                            value={order.event_date}
-                            onChange={(value) => handleOrderChange(orderIndex, 'event_date', value)}
-                            pdfMode={pdfMode}
-                        />
-                        <EditableInput
-                            placeholder="Event Type"
-                            value={order.event_type}
-                            onChange={(value) => handleOrderChange(orderIndex, 'event_type', value)}
-                            pdfMode={pdfMode}
-                        />
-                        <View className="flex mt-20-c bg-dark p-4-8-c" pdfMode={pdfMode}>
-                            <View className="w-48 p-4-8-c" pdfMode={pdfMode}>
-                                <Text className="white bold">Product ID</Text>
+                    <View
+                        key={orderIndex}
+                        className="order-section"
+                        style={{ border: '1px solid #e0e0e0', padding: '10px', borderRadius: '5px', marginBottom: '10px', position: 'relative' }}
+                        pdfMode={pdfMode}
+                    >
+                        <View className="flex mt-10-c" pdfMode={pdfMode}>
+                            <View className="mt-10-c flex-column w-100">
+                                <EditableInput
+                                    className="bold fs-18 w-100"
+                                    placeholder="Order Details"
+                                    value={order.details}
+                                    onChange={(value) => handleOrderChange(orderIndex, 'details', value)}
+                                    pdfMode={pdfMode}
+                                />
                             </View>
-                            <View className="w-17 p-4-8-c" pdfMode={pdfMode}>
-                                <Text className="white bold right">Price</Text>
-                            </View>
-                            <View className="w-17 p-4-8-c" pdfMode={pdfMode}>
-                                <Text className="white bold right">Discount</Text>
-                            </View>
-                            <View className="w-18 p-4-8-c" pdfMode={pdfMode}>
-                                <Text className="white bold right">Action</Text>
+                            <View className="mt-10-c flex-column mr-10-c" pdfMode={pdfMode}>
+                                <EditableInput
+                                    className="bold fs-18 w-100 right"
+                                    placeholder="Event Type"
+                                    value={order.event_type}
+                                    onChange={(value) => handleOrderChange(orderIndex, 'event_type', value)}
+                                    pdfMode={pdfMode}
+                                />
+                                <EditableInput
+                                    className="bold fs-18 w-100 right"
+                                    placeholder="Event Date"
+                                    value={order.event_date}
+                                    onChange={(value) => handleOrderChange(orderIndex, 'event_date', value)}
+                                    pdfMode={pdfMode}
+                                />
                             </View>
                         </View>
-                        {(order.products || []).map((product, productIndex) => (
-                            <View key={productIndex} className="row flex" pdfMode={pdfMode}>
-                                <View className="w-48 p-4-8-c pb-10-c" pdfMode={pdfMode}>
+                        <View className="flex mt-10-c" pdfMode={pdfMode}>
+
+                            <View className="mt-10-c flex-column" pdfMode={pdfMode}>
+                                <View className="flex" pdfMode={pdfMode}>
+                                    <Text className={`mt-1 ${pdfMode ? 'mr-40-c' : 'mr-10-c'} w-55-c`} pdfMode={pdfMode}>Order Price:</Text>
                                     <EditableInput
-                                        placeholder="Product ID"
-                                        value={product.product_id || ''}
-                                        onChange={(value) => handleProductChange(orderIndex, productIndex, 'product_id', value)}
+                                        className="bold fs-18 w-100"
+                                        placeholder="Order Price"
+                                        value={order.price?.toString() || ''}
+                                        onChange={(value) => handleOrderChange(orderIndex, 'price', parseFloat(value))}
                                         pdfMode={pdfMode}
                                     />
                                 </View>
-                                <View className="w-17 p-4-8-c pb-10-c" pdfMode={pdfMode}>
+                                <View className="flex" pdfMode={pdfMode}>
+                                    <Text className={`mt-1 ${pdfMode ? 'mr-40-c' : 'mr-10-c'} w-55-c`} pdfMode={pdfMode}>Order Discount:</Text>
                                     <EditableInput
-                                        className="dark right"
-                                        placeholder="Price"
-                                        value={(product.price || 0).toString()}
-                                        onChange={(value) => handleProductChange(orderIndex, productIndex, 'price', parseFloat(value))}
+                                        className="bold fs-18 w-100"
+                                        placeholder="Order Discount"
+                                        value={order.discount?.toString() || ''}
+                                        onChange={(value) => handleOrderChange(orderIndex, 'discount', parseFloat(value))}
                                         pdfMode={pdfMode}
                                     />
                                 </View>
-                                <View className="w-17 p-4-8-c pb-10-c" pdfMode={pdfMode}>
-                                    <EditableInput
-                                        className="dark right"
-                                        placeholder="Discount"
-                                        value={(product.discount || 0).toString()}
-                                        onChange={(value) => handleProductChange(orderIndex, productIndex, 'discount', parseFloat(value))}
-                                        pdfMode={pdfMode}
-                                    />
-                                </View>
-                                <View className="w-18 p-4-8-c pb-10-c" pdfMode={pdfMode}>
-                                    {!pdfMode && (
-                                        <button
-                                            className="link row__remove"
-                                            aria-label="Remove Row"
-                                            title="Remove Row"
-                                            onClick={() => handleRemoveProduct(orderIndex, productIndex)}
-                                        >
-                                            <span className="icon icon-remove bg-red"></span>
-                                        </button>
-                                    )}
-                                </View>
+                                <Text className="bold fs-18 w-100">
+                                    Order Subtotal: {((order.price || 0) - (order.discount || 0)).toFixed(2)}
+                                </Text>
                             </View>
-                        ))}
+                        </View>
+                        <View className="flex mt-10-c p-4-8-c bg-dark" pdfMode={pdfMode}>
+                            <View className="w-48 p-4-8-c" pdfMode={pdfMode}>
+                                <Text className="text-light bold" pdfMode={pdfMode}>Product Id</Text>
+                            </View>
+                            <View className="w-17 p-4-8-c text-right" pdfMode={pdfMode}>
+                                <Text className="text-light bold" pdfMode={pdfMode}>Price</Text>
+                            </View>
+                            <View className="w-17 p-4-8-c text-right" pdfMode={pdfMode}>
+                                <Text className="text-light bold" pdfMode={pdfMode}>Discount</Text>
+                            </View>
+                            <View className="w-18 p-4-8-c text-right" pdfMode={pdfMode}>
+                                <Text className="text-light bold" pdfMode={pdfMode}>Item Total</Text>
+                            </View>
+                        </View>
+                        {(order.products || []).map((product, productIndex) => {
+                            const itemTotal = (product.price || 0) - (product.discount || 0);
+                            return (
+                                <View key={productIndex} className="row flex" pdfMode={pdfMode}>
+                                    <View className="w-48 p-4-8-c pb-10-c" pdfMode={pdfMode}>
+                                        <EditableInput
+                                            placeholder="Product ID"
+                                            value={product.product_id || ''}
+                                            onChange={(value) => handleProductChange(orderIndex, productIndex, 'product_id', value)}
+                                            pdfMode={pdfMode}
+                                        />
+                                    </View>
+                                    <View className="w-17 p-4-8-c pb-10-c text-right" pdfMode={pdfMode}>
+                                        <EditableInput
+                                            className="dark"
+                                            placeholder="Price"
+                                            value={(product.price || 0).toString()}
+                                            onChange={(value) => handleProductChange(orderIndex, productIndex, 'price', parseFloat(value))}
+                                            pdfMode={pdfMode}
+                                        />
+                                    </View>
+                                    <View className="w-17 p-4-8-c pb-10-c text-right" pdfMode={pdfMode}>
+                                        <EditableInput
+                                            className="dark"
+                                            placeholder="Discount"
+                                            value={(product.discount || 0).toString()}
+                                            onChange={(value) => handleProductChange(orderIndex, productIndex, 'discount', parseFloat(value))}
+                                            pdfMode={pdfMode}
+                                        />
+                                    </View>
+                                    <View className="w-18 p-4-8-c pb-10-c text-right" pdfMode={pdfMode}>
+                                        <Text className="dark">{itemTotal.toFixed(2)}</Text>
+                                        {!pdfMode && (
+                                            <button
+                                                className="link row__remove"
+                                                aria-label="Remove Row"
+                                                title="Remove Row"
+                                                onClick={() => handleRemoveProduct(orderIndex, productIndex)}
+                                            >
+                                                <span className="icon icon-remove bg-red"></span>
+                                            </button>
+                                        )}
+                                    </View>
+                                </View>
+                            );
+                        })}
                         {!pdfMode && (
                             <button className="link" onClick={() => handleAddProduct(orderIndex)}>
                                 <span className="icon icon-add bg-green mr-10-c"></span>
@@ -370,9 +424,14 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
                             </button>
                         )}
                         {!pdfMode && (
-                            <button className="link" onClick={() => handleRemoveOrder(orderIndex)}>
+                            <button
+                                className="link order__remove"
+                                aria-label="Remove Order"
+                                title="Remove Order"
+                                onClick={() => handleRemoveOrder(orderIndex)}
+                                style={{ position: 'absolute', top: '10px', right: '10px' }}
+                            >
                                 <span className="icon icon-remove bg-red"></span>
-                                Remove Order
                             </button>
                         )}
                     </View>
@@ -398,12 +457,12 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
                             </View>
                             <View className="w-50 p-5-c flex" pdfMode={pdfMode}>
                                 <EditableInput
-                                    className="dark bold right ml-30-c"
+                                    className="dark bold text-right ml-30-c"
                                     value={invoice.currency}
                                     onChange={(value) => handleChange('currency', value)}
                                     pdfMode={pdfMode}
                                 />
-                                <Text className="right bold dark w-auto" pdfMode={pdfMode}>
+                                <Text className="text-right bold dark w-auto" pdfMode={pdfMode}>
                                     {subTotal?.toFixed(2)}
                                 </Text>
                             </View>
