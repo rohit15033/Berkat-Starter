@@ -33,6 +33,7 @@ const Sidebar = () => {
     { path: "/users", name: "Users", icon: <FontAwesomeIcon icon={faUsers} /> },
     { path: "/appointments", name: "Appointments", icon: <FontAwesomeIcon icon={faCalendarCheck} /> },
     { path: "/customers", name: "Customers", icon: <FontAwesomeIcon icon={faPeopleGroup} /> },
+    { path: "/invoices", name: "Invoice", icon: <FontAwesomeIcon icon="fa-solid fa-file-invoice-dollar" /> },
   ];
 
   return (

@@ -99,16 +99,12 @@ const router = createBrowserRouter([
       },
       {
         path:'/invoices/new',
-        element: <InvoicesForm key="invoiceCreate" />
+        element: <InvoicePage key="invoiceCreate" />
       },
       {
         path:'/invoices/:id',
-        element: <InvoicesForm key="invoiceUpdate" />
+        element: <InvoicePage key="invoiceUpdate" />
       },
-      {
-        path:'/invoicepage',
-        element: <InvoicePage />
-      }
     ]
   },
   {

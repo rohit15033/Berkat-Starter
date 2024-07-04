@@ -1,12 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import axiosClient from "../../axios-client.js";
 import { useStateContext } from "../../context/ContextProvider.jsx";
+import {useState} from "react";
 
 const InvoiceForm = () => {
   const navigate = useNavigate();
   const { setNotification } = useStateContext();
 
-  const [loading, setLoading] = useState(false);a
+  const [loading, setLoading] = useState(false);
   const [invoice, setInvoice] = useState({
     date: "",
     detail: "",
