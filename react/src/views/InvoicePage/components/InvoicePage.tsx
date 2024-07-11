@@ -348,13 +348,19 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
                                             onChange={(value) => handleOrderChange(orderIndex, 'event_type', value)}
                                             pdfMode={pdfMode}
                                         />
-                                        <EditableInput
-                                            className="bold fs-18 w-100 right"
-                                            placeholder="Event Date"
-                                            value={order.event_date}
-                                            onChange={(value) => handleOrderChange(orderIndex, 'event_date', value)}
+                                        <EditableCalendarInput
+                                            value={format(new Date(order.event_date), dateFormat)}
+                                            selected={new Date(order.event_date)}
+                                            onChange={(date) =>
+                                                handleOrderChange(
+                                                    orderIndex,
+                                                    'event_date',
+                                                    date && !Array.isArray(date) ? format(date, 'yyyy-MM-dd') : ''
+                                                )
+                                            }
                                             pdfMode={pdfMode}
                                         />
+
                                     </View>
                                 </View>
                                 <View className="flex mt-10-c" pdfMode={pdfMode}>
