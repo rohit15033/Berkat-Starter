@@ -105,6 +105,10 @@ const router = createBrowserRouter([
         path:'/invoices/:id',
         element: <InvoicePage key="invoiceUpdate" />
       },
+      {
+        path:'/invoicesform',
+        element: <InvoicesForm />
+      },
     ]
   },
   {

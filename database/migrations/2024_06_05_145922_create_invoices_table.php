@@ -22,7 +22,7 @@ return new class extends Migration
             $table->text('detail')->nullable();
             $table->string('marketing');
             $table->decimal('price', 11, 2)->nullable();
-            $table->string('status');
+            $table->string('status')->default('unpaid');
             $table->decimal('discount', 11, 2)->nullable();
         });
     }

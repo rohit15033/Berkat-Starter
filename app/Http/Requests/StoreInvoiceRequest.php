@@ -27,7 +27,7 @@ class StoreInvoiceRequest extends FormRequest
             'date' => 'required|date',
             'detail' => 'nullable|string',
             'marketing' => 'required|string',
-            'status' => 'required|string',
+            'status' => 'sometimes|string',
             'discount' => 'nullable|numeric',
             'orders' => 'required|array',
             'orders.*.event_date' => 'required|date',
@@ -36,7 +36,7 @@ class StoreInvoiceRequest extends FormRequest
             'orders.*.discount' => 'nullable|numeric',
             'orders.*.details' => 'nullable|string',
             'orders.*.products' => 'sometimes|array',
-            'orders.*.products.*.product_id' => 'required_with:orders.*.products|exists:products,id',
+            'orders.*.products.*.product_id' => 'required_with:orders.*.products',
             'orders.*.products.*.price' => 'required_with:orders.*.products|numeric',
             'orders.*.products.*.discount' => 'nullable|numeric',
         ];

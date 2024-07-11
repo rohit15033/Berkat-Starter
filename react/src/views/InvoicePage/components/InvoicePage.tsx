@@ -15,6 +15,7 @@ import Text from './Text';
 import { Font } from '@react-pdf/renderer';
 import Download from './DownloadPDF';
 import format from 'date-fns/format';
+// import parse from 'date-fns/parse';
 // import { useNavigate } from 'react-router-dom';
 
 Font.register({
@@ -146,7 +147,12 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
         setLoading(true);
 
         try {
-            const response = await axiosClient.post("/invoices", invoice);
+            const formattedDate = format(new Date(invoice.invoiceDate), 'yyyy-MM-dd');
+
+            const payload = { ...invoice, date: formattedDate, marketing: invoice.name };
+            delete payload.name; // Remove the name field as it will be sent as marketer
+            delete payload.invoiceDate; // Remove invoiceDate as it will be sent as date
+            const response = await axiosClient.post("/invoices", payload);
             setNotification(response.data.message);
             // navigate("/invoices");
         } catch (error) {
@@ -554,4 +560,3 @@ const InvoicePage: FC<Props> = ({ data, pdfMode, onChange }) => {
 };
 
 export default InvoicePage;
-
